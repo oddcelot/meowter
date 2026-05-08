@@ -1,0 +1,11 @@
+id = "meowter"
+name = "Meowter"
+version = "0.0.1"
+schema_version = 1
+authors = ["Meowter contributors"]
+description = "Route-path autocompletion for the meowter router"
+repository = "https://github.com/oddcelot/meowter"
+
+[language_servers.meowter-lsp]
+name = "meowter-lsp"
+languages = ["HTML", "TypeScript", "TSX", "JavaScript"]

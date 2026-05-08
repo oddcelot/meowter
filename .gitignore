@@ -98,3 +98,7 @@ meowter-routes.d.ts
 # editor / tooling caches
 .fallow/
 **/.fallow/
+
+# Rust / Zed extension build output
+extensions/zed/target/
+extensions/zed/Cargo.lock
