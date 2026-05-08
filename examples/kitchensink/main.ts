@@ -5,6 +5,10 @@ import "./styles.css";
 import { createRenderEffect, createRoot } from "@solidjs/signals";
 import "../../src/index.ts";
 import type { MeowRouter } from "../../src/router-element.ts";
+import logoUrl from "../../meowter-logo.svg?url";
+
+const logoEl = document.querySelector<HTMLImageElement>("#meowter-logo");
+if (logoEl) logoEl.src = logoUrl;
 
 const router = document.querySelector<MeowRouter>("meow-router");
 if (!router) throw new Error("kitchen sink: meow-router missing");

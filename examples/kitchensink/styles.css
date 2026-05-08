@@ -98,19 +98,34 @@ aside {
   flex-direction: column;
 }
 
-aside > hgroup {
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   margin-bottom: var(--pico-spacing);
 }
 
-aside > hgroup h2 {
-  color: var(--pico-primary);
-  margin-bottom: 0;
+.brand img {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
 }
 
-aside > hgroup p {
-  color: var(--pico-muted-color);
+.brand hgroup {
   margin: 0;
+}
+
+.brand hgroup h2 {
+  color: var(--pico-primary);
+  margin-bottom: 0;
+  line-height: 1;
+}
+
+.brand hgroup p {
+  color: var(--pico-muted-color);
+  margin: 0.15rem 0 0;
   font-size: 0.85rem;
+  line-height: 1;
 }
 
 aside nav ul {
