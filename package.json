@@ -22,6 +22,8 @@
     "vitest": "^4.0.0"
   },
   "dependencies": {
+    "@fontsource-variable/lilex": "^5.2.1",
+    "@picocss/pico": "^2.1.1",
     "@solidjs/signals": "2.0.0-beta.10"
   }
 }

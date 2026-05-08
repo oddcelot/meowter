@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>meowter — kitchen sink</title>
+  </head>
+  <body>
+    <meow-router>
+      <div class="layout">
+        <aside>
+          <hgroup>
+            <h2>meowter</h2>
+            <p>kitchen sink</p>
+          </hgroup>
+
+          <nav aria-label="Primary">
+            <ul>
+              <li><a href="/examples/kitchensink/" data-nav>Home</a></li>
+              <li><a href="/examples/kitchensink/cats" data-nav>Cats</a></li>
+              <li><a href="/examples/kitchensink/dogs" data-nav>Dogs</a></li>
+              <li><a href="/examples/kitchensink/search" data-nav>Search params</a></li>
+              <li><a href="/examples/kitchensink/programmatic" data-nav>Programmatic</a></li>
+              <li><a href="/examples/kitchensink/about" data-nav>About</a></li>
+            </ul>
+          </nav>
+
+          <article id="debug">
+            <header><strong>Live state</strong></header>
+            <div id="debug-content"></div>
+          </article>
+        </aside>
+
+        <main class="container">
+          <meow-outlet>
+            <meow-route path="/examples/kitchensink">
+              <article>
+                <header><h1>Home</h1></header>
+                <p>
+                  This is a kitchen-sink demo of <code>meow-router</code>,
+                  <code>meow-route</code>, and <code>meow-outlet</code>.
+                </p>
+                <p>
+                  Click around the sidebar to exercise the features. The
+                  <strong>Live state</strong> panel updates reactively from the
+                  router's signals and stores.
+                </p>
+                <ul>
+                  <li>Nested routes with index + dynamic params</li>
+                  <li>Catch-all 404 fallback</li>
+                  <li>Reactive search params (per-key)</li>
+                  <li><code>navigate</code>, <code>replace</code>, history stack</li>
+                  <li>Browser back/forward integration</li>
+                </ul>
+              </article>
+            </meow-route>
+
+            <meow-route path="/examples/kitchensink/cats">
+              <article>
+                <header>
+                  <h1>Cats</h1>
+                  <nav>
+                    <ul>
+                      <li><a href="/examples/kitchensink/cats">All</a></li>
+                      <li><a href="/examples/kitchensink/cats/new">New</a></li>
+                      <li><a href="/examples/kitchensink/cats/whiskers">Whiskers</a></li>
+                      <li><a href="/examples/kitchensink/cats/mittens">Mittens</a></li>
+                      <li><a href="/examples/kitchensink/cats/biscuit">Biscuit</a></li>
+                    </ul>
+                  </nav>
+                </header>
+
+                <meow-outlet>
+                  <meow-route path="">
+                    <p>
+                      Pick a cat above. The list below is the index route's
+                      content; the detail/new views replace it via the nested
+                      outlet.
+                    </p>
+                    <table>
+                      <thead>
+                        <tr><th>Name</th><th>Color</th><th>Status</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>whiskers</td><td>tabby</td><td>napping</td></tr>
+                        <tr><td>mittens</td><td>black</td><td>plotting</td></tr>
+                        <tr><td>biscuit</td><td>orange</td><td>begging</td></tr>
+                      </tbody>
+                    </table>
+                  </meow-route>
+
+                  <meow-route path="new">
+                    <h2>New cat</h2>
+                    <form onsubmit="event.preventDefault();">
+                      <label>
+                        Name
+                        <input type="text" name="name" placeholder="e.g. Pickles" />
+                      </label>
+                      <label>
+                        Color
+                        <select name="color">
+                          <option>tabby</option>
+                          <option>black</option>
+                          <option>orange</option>
+                          <option>calico</option>
+                        </select>
+                      </label>
+                      <button type="submit">Add cat (no-op demo)</button>
+                    </form>
+                  </meow-route>
+
+                  <meow-route path=":id">
+                    <h2>Detail: <span data-param="id"></span></h2>
+                    <p>
+                      This route demonstrates a dynamic parameter. The
+                      <code>:id</code> segment is exposed via
+                      <code>route.params</code> /
+                      <code>route.paramsAccessor()</code>.
+                    </p>
+                    <p>
+                      The <code>data-param="id"</code> spans above are auto-
+                      filled by the demo's <code>route-match</code> listener.
+                    </p>
+                  </meow-route>
+                </meow-outlet>
+              </article>
+            </meow-route>
+
+            <meow-route path="/examples/kitchensink/dogs">
+              <article>
+                <header><h1>Dogs</h1></header>
+                <p>Wrong house.</p>
+                <p>
+                  Sibling-of-cats route. Note that the cats route's
+                  <code>matched</code> signal flips to <code>false</code> when
+                  this one is shown, and the live-state panel reflects the
+                  change reactively.
+                </p>
+              </article>
+            </meow-route>
+
+            <meow-route path="/examples/kitchensink/search">
+              <article>
+                <header><h1>Search params</h1></header>
+                <p>
+                  Type below — each keystroke writes to <code>?filter=</code>
+                  via <code>router.setSearchParam(...)</code> using
+                  <code>history: "replace"</code> so back/forward only steps
+                  between actual page navigations.
+                </p>
+
+                <fieldset>
+                  <label>
+                    Filter
+                    <input id="search-filter" type="text" placeholder="filter cats…" />
+                  </label>
+                  <label>
+                    Sort
+                    <select id="search-sort">
+                      <option value="">(none)</option>
+                      <option value="asc">ascending</option>
+                      <option value="desc">descending</option>
+                    </select>
+                  </label>
+                </fieldset>
+
+                <p>
+                  <button id="search-add-tag">Add tag</button>
+                  <button id="search-clear" class="secondary">Clear all</button>
+                </p>
+
+                <p>
+                  Current params (live):
+                </p>
+                <pre id="search-readout"></pre>
+              </article>
+            </meow-route>
+
+            <meow-route path="/examples/kitchensink/programmatic">
+              <article>
+                <header><h1>Programmatic</h1></header>
+                <p>Buttons that call router methods directly:</p>
+                <div class="grid">
+                  <button data-action="navigate" data-href="/examples/kitchensink/">navigate(/)</button>
+                  <button data-action="navigate" data-href="/examples/kitchensink/cats/whiskers">navigate(/cats/whiskers)</button>
+                  <button data-action="replace" data-href="/examples/kitchensink/cats/mittens">replace(/cats/mittens)</button>
+                  <button data-action="navigate-state">navigate(/about, &#123;from:"demo"&#125;)</button>
+                </div>
+                <div class="grid">
+                  <button data-action="back" class="secondary">history.back()</button>
+                  <button data-action="forward" class="secondary">history.forward()</button>
+                </div>
+              </article>
+            </meow-route>
+
+            <meow-route path="/examples/kitchensink/about">
+              <article>
+                <header><h1>About</h1></header>
+                <p>
+                  This kitchen sink exercises the full surface of
+                  <code>meowter</code>. Source lives in <code>../../src/</code>.
+                </p>
+                <p>
+                  Reactivity layer: <code>@solidjs/signals@2.0.0-beta.x</code>.
+                  Styling: <a href="https://picocss.com/">Pico CSS</a>. Font:
+                  <a href="https://github.com/dkaoster/lilex"
+                    >Lilex Variable</a
+                  >.
+                </p>
+              </article>
+            </meow-route>
+
+            <meow-route path="*">
+              <article>
+                <header><h1>404</h1></header>
+                <p>Nothing here — the catch-all route matched.</p>
+                <p><a href="/examples/kitchensink/">Back home</a></p>
+              </article>
+            </meow-route>
+          </meow-outlet>
+        </main>
+      </div>
+    </meow-router>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

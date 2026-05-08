@@ -1,0 +1,144 @@
+:root {
+  --pico-font-family-sans-serif: "Lilex Variable", system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --pico-font-family-monospace: "Lilex Variable", ui-monospace,
+    "SF Mono", Menlo, monospace;
+}
+
+body {
+  margin: 0;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 18rem 1fr;
+  min-height: 100vh;
+}
+
+aside {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: var(--pico-spacing);
+  border-right: 1px solid var(--pico-muted-border-color);
+  background: var(--pico-card-background-color);
+}
+
+aside > hgroup {
+  margin-bottom: var(--pico-spacing);
+}
+
+aside nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--pico-spacing);
+}
+
+aside nav li {
+  margin: 0;
+}
+
+aside nav a {
+  display: block;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--pico-border-radius);
+  color: var(--pico-color);
+  text-decoration: none;
+}
+
+aside nav a:hover {
+  background: var(--pico-secondary-hover-background, rgba(0, 0, 0, 0.05));
+}
+
+aside nav a[aria-current="page"] {
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+}
+
+#debug {
+  margin-top: auto;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+#debug-content {
+  font-family: var(--pico-font-family-monospace);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+#debug-content dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+}
+
+#debug-content dt {
+  color: var(--pico-muted-color);
+  font-weight: 600;
+}
+
+#debug-content dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+#debug-content pre {
+  margin: 0.25rem 0 0;
+  padding: 0.4rem;
+  font-size: 0.7rem;
+}
+
+main {
+  padding: var(--pico-spacing) calc(var(--pico-spacing) * 1.5);
+  max-width: 60rem;
+}
+
+main > meow-outlet {
+  display: block;
+}
+
+meow-route {
+  display: block;
+}
+
+meow-route[hidden] {
+  display: none;
+}
+
+article header h1,
+article header h2 {
+  margin-bottom: 0;
+}
+
+article header nav ul {
+  display: flex;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  flex-wrap: wrap;
+}
+
+article header nav a {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--pico-border-radius);
+  text-decoration: none;
+  color: var(--pico-color);
+  font-size: 0.875rem;
+  border: 1px solid var(--pico-muted-border-color);
+}
+
+article header nav a[aria-current="page"] {
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  border-color: var(--pico-primary-border);
+}
+
+#search-readout {
+  font-size: 0.85rem;
+}
