@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>meowter</title>
+  </head>
+  <body>
+    <h1>meowter router demo</h1>
+    <meow-router>
+      <nav>
+        <a href="/">home</a>
+        <a href="/cats">cats</a>
+        <a href="/cats/whiskers">whiskers</a>
+        <a href="https://example.com">external (ignored)</a>
+        <a href="/file.txt" download>download (ignored)</a>
+        <a href="/new" target="_blank">new tab (ignored)</a>
+      </nav>
+      <pre id="log"></pre>
+    </meow-router>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
