@@ -8,10 +8,10 @@ const INITIAL_URL = new URL(
 
 export class MeowRouter extends HTMLElement {
   #url = createSignal<URL>(INITIAL_URL, {
-    pureWrite: true,
+    ownedWrite: true,
     equals: (a, b) => a.href === b.href,
   });
-  #state = createSignal<unknown>(null, { pureWrite: true });
+  #state = createSignal<unknown>(null, { ownedWrite: true });
 
   get currentURL(): Accessor<URL> {
     return this.#url[0];
