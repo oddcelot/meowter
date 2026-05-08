@@ -4,7 +4,7 @@ import "./styles.css";
 
 import { createRenderEffect, createRoot } from "@solidjs/signals";
 import "meowter";
-import type { MeowRouter } from "meowter";
+import type { MeowRoute, MeowRouter } from "meowter";
 import logoUrl from "../../meowter-logo.svg?url";
 
 const BASE = import.meta.env.BASE_URL;
@@ -15,14 +15,6 @@ if (logoEl) logoEl.src = logoUrl;
 const router = document.querySelector<MeowRouter>("meow-router");
 if (!router) throw new Error("kitchen sink: meow-router missing");
 
-document.querySelectorAll<HTMLElement>("meow-route").forEach((route) => {
-  route.addEventListener("route-match", (event) => {
-    for (const target of route.querySelectorAll<HTMLElement>("[data-param]")) {
-      const name = target.dataset["param"];
-      if (name) target.textContent = event.detail.params[name] ?? "";
-    }
-  });
-});
 
 const filterInput = document.querySelector<HTMLInputElement>("#search-filter");
 const sortSelect = document.querySelector<HTMLSelectElement>("#search-sort");
@@ -74,6 +66,20 @@ function pathOf(href: string): string {
 }
 
 createRoot(() => {
+  for (const route of document.querySelectorAll<MeowRoute>("meow-route")) {
+    const targets = route.querySelectorAll<HTMLElement>("[data-param]");
+    if (targets.length === 0) continue;
+    createRenderEffect(
+      () => route.paramsAccessor(),
+      (params) => {
+        for (const target of targets) {
+          const name = target.dataset["param"];
+          if (name) target.textContent = params?.[name] ?? "";
+        }
+      },
+    );
+  }
+
   const HOME_PATH = BASE;
   createRenderEffect(
     () => router.currentURL().pathname,
