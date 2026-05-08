@@ -1,8 +1,78 @@
-:root {
+/*
+ * Kitchen-sink theme — color palette inspired by the meowter mascot:
+ *   #e8a03d  body (warm amber)
+ *   #c98326  shadow / hover
+ *   #1a1410  whiskers + outlines (warm near-black)
+ *   #fff8e6  cream highlights
+ */
+
+:root,
+:root[data-theme="light"] {
   --pico-font-family-sans-serif: "Lilex Variable", system-ui, -apple-system,
     "Segoe UI", Roboto, sans-serif;
   --pico-font-family-monospace: "Lilex Variable", ui-monospace,
     "SF Mono", Menlo, monospace;
+
+  /* Primary — cat body amber */
+  --pico-primary: #c98326;
+  --pico-primary-hover: #a26817;
+  --pico-primary-focus: rgba(232, 160, 61, 0.35);
+  --pico-primary-inverse: #fffaee;
+  --pico-primary-background: #e8a03d;
+  --pico-primary-border: #c98326;
+  --pico-primary-underline: rgba(201, 131, 38, 0.5);
+  --pico-primary-hover-background: #c98326;
+  --pico-primary-hover-border: #a26817;
+  --pico-primary-hover-underline: rgba(162, 104, 23, 0.7);
+
+  /* Surface */
+  --pico-background-color: #fdf5e3;
+  --pico-card-background-color: #fffaee;
+  --pico-card-border-color: #ecd9ad;
+  --pico-card-sectioning-background-color: #fff3d1;
+
+  /* Text */
+  --pico-color: #1a1410;
+  --pico-h1-color: #1a1410;
+  --pico-h2-color: #1a1410;
+  --pico-h3-color: #1a1410;
+  --pico-h4-color: #1a1410;
+  --pico-h5-color: #1a1410;
+  --pico-h6-color: #1a1410;
+  --pico-muted-color: #7a6a4f;
+  --pico-muted-border-color: #ecd9ad;
+
+  /* Code / pre */
+  --pico-code-background-color: #fff3d1;
+  --pico-code-color: #8b4513;
+  --pico-code-tag-color: #c98326;
+  --pico-code-property-color: #a26817;
+  --pico-code-value-color: #1a1410;
+  --pico-code-comment-color: #7a6a4f;
+
+  /* Forms */
+  --pico-form-element-background-color: #fffaee;
+  --pico-form-element-selected-background-color: #fff3d1;
+  --pico-form-element-border-color: #ecd9ad;
+  --pico-form-element-color: #1a1410;
+  --pico-form-element-active-background-color: #fffaee;
+  --pico-form-element-active-border-color: #c98326;
+  --pico-form-element-focus-color: rgba(232, 160, 61, 0.4);
+  --pico-form-element-placeholder-color: #b09a7a;
+
+  /* Tables */
+  --pico-table-border-color: #ecd9ad;
+  --pico-table-row-stripped-background-color: #fff3d1;
+
+  /* Secondary buttons / muted accents */
+  --pico-secondary: #6b4f2a;
+  --pico-secondary-hover: #4a3818;
+  --pico-secondary-focus: rgba(107, 79, 42, 0.25);
+  --pico-secondary-inverse: #fffaee;
+  --pico-secondary-background: #6b4f2a;
+  --pico-secondary-border: #6b4f2a;
+  --pico-secondary-hover-background: #4a3818;
+  --pico-secondary-hover-border: #4a3818;
 }
 
 body {
@@ -24,10 +94,23 @@ aside {
   padding: var(--pico-spacing);
   border-right: 1px solid var(--pico-muted-border-color);
   background: var(--pico-card-background-color);
+  display: flex;
+  flex-direction: column;
 }
 
 aside > hgroup {
   margin-bottom: var(--pico-spacing);
+}
+
+aside > hgroup h2 {
+  color: var(--pico-primary);
+  margin-bottom: 0;
+}
+
+aside > hgroup p {
+  color: var(--pico-muted-color);
+  margin: 0;
+  font-size: 0.85rem;
 }
 
 aside nav ul {
@@ -49,18 +132,21 @@ aside nav a {
 }
 
 aside nav a:hover {
-  background: var(--pico-secondary-hover-background, rgba(0, 0, 0, 0.05));
+  background: var(--pico-card-sectioning-background-color);
 }
 
 aside nav a[aria-current="page"] {
   background: var(--pico-primary-background);
   color: var(--pico-primary-inverse);
+  font-weight: 600;
 }
 
 #debug {
   margin-top: auto;
   padding: 0.5rem 0.75rem;
   font-size: 0.8rem;
+  background: var(--pico-card-sectioning-background-color);
+  border: 1px solid var(--pico-card-border-color);
 }
 
 #debug-content {
@@ -90,6 +176,7 @@ aside nav a[aria-current="page"] {
   margin: 0.25rem 0 0;
   padding: 0.4rem;
   font-size: 0.7rem;
+  background: var(--pico-background-color);
 }
 
 main {
@@ -109,14 +196,20 @@ meow-route[hidden] {
   display: none;
 }
 
+article {
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-card-border-color);
+}
+
 article header h1,
 article header h2 {
   margin-bottom: 0;
+  color: var(--pico-color);
 }
 
 article header nav ul {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   list-style: none;
   padding: 0;
   margin: 0.75rem 0 0;
@@ -131,6 +224,11 @@ article header nav a {
   color: var(--pico-color);
   font-size: 0.875rem;
   border: 1px solid var(--pico-muted-border-color);
+  background: var(--pico-card-background-color);
+}
+
+article header nav a:hover {
+  background: var(--pico-card-sectioning-background-color);
 }
 
 article header nav a[aria-current="page"] {

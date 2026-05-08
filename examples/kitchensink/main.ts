@@ -68,11 +68,20 @@ function pathOf(href: string): string {
 }
 
 createRoot(() => {
+  const HOME_PATH = "/examples/kitchensink/";
   createRenderEffect(
     () => router.currentURL().pathname,
     (pathname) => {
+      const normalizedPath = pathname.endsWith("/") ? pathname : pathname + "/";
       for (const link of navLinks) {
-        if (link.pathname === pathname) link.setAttribute("aria-current", "page");
+        const linkPath = link.pathname.endsWith("/")
+          ? link.pathname
+          : link.pathname + "/";
+        const isActive =
+          linkPath === HOME_PATH
+            ? normalizedPath === HOME_PATH
+            : normalizedPath.startsWith(linkPath);
+        if (isActive) link.setAttribute("aria-current", "page");
         else link.removeAttribute("aria-current");
       }
     },
