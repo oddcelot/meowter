@@ -3,6 +3,7 @@ import { createMemo, createRenderEffect, createRoot } from "@solidjs/signals";
 import "./index.ts";
 import type { MeowRouter } from "./router-element.ts";
 import type { MeowOutlet } from "./outlet-element.ts";
+import type { MeowRoute } from "./route-element.ts";
 
 function setURL(path: string): void {
   window.history.replaceState(null, "", path);
@@ -109,6 +110,54 @@ describe("reactive surface (Solid signals)", () => {
     router.navigate("/dogs");
     expect(outer.selectedRoute()?.getAttribute("path")).toBe("/dogs");
     expect(inner.selectedRoute()).toBeNull();
+  });
+
+  it("route exposes tracking-friendly matchedAccessor and paramsAccessor", async () => {
+    setURL("/cats");
+    const router = mount(`
+      <meow-outlet>
+        <meow-route path="/cats">cats</meow-route>
+        <meow-route path="/cats/:id">detail</meow-route>
+        <meow-route path="/dogs">dogs</meow-route>
+      </meow-outlet>
+    `);
+    await tick();
+    const cats = router.querySelector<MeowRoute>("meow-route[path='/cats']")!;
+    const detail = router.querySelector<MeowRoute>("meow-route[path='/cats/:id']")!;
+
+    const matchedSeq: boolean[] = [];
+    const paramsSeq: Array<Record<string, string> | null> = [];
+    const dispose = createRoot((d) => {
+      createRenderEffect(
+        () => cats.matchedAccessor(),
+        (v) => {
+          matchedSeq.push(v);
+        },
+      );
+      createRenderEffect(
+        () => detail.paramsAccessor(),
+        (v) => {
+          paramsSeq.push(v);
+        },
+      );
+      return d;
+    });
+
+    expect(matchedSeq).toEqual([true]);
+    expect(paramsSeq).toEqual([null]);
+
+    router.navigate("/cats/whiskers");
+    expect(matchedSeq).toEqual([true, false]);
+    expect(paramsSeq).toEqual([null, { id: "whiskers" }]);
+
+    router.navigate("/cats/mittens");
+    expect(paramsSeq).toEqual([null, { id: "whiskers" }, { id: "mittens" }]);
+
+    router.navigate("/dogs");
+    expect(matchedSeq).toEqual([true, false]);
+    expect(paramsSeq).toEqual([null, { id: "whiskers" }, { id: "mittens" }, null]);
+
+    dispose();
   });
 
   it("an external memo over outlet.selectedRoute reacts when navigating", async () => {

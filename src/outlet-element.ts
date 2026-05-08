@@ -2,6 +2,7 @@ import {
   createMemo,
   createRenderEffect,
   createRoot,
+  runWithOwner,
   type Accessor,
 } from "@solidjs/signals";
 import { computeRemainder, selectFor, type RouteCandidate } from "./path-select.ts";
@@ -53,7 +54,7 @@ export class MeowOutlet extends HTMLElement {
       }),
     );
 
-    this.#disposeRoot = createRoot((dispose) => {
+    this.#disposeRoot = runWithOwner(null, () => createRoot((dispose) => {
       const reachable = createMemo<boolean>(() => {
         if (!ancestorOutlet || !ancestorRoute) return true;
         return ancestorOutlet.selectedRoute() === ancestorRoute;
@@ -89,7 +90,7 @@ export class MeowOutlet extends HTMLElement {
       );
 
       return dispose;
-    });
+    }));
   }
 
   #findAncestorOutlet(router: MeowRouter): MeowOutlet | null {

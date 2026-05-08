@@ -1,11 +1,30 @@
+import { createSignal, flush, untrack, type Accessor } from "@solidjs/signals";
 import type { RouteMatchDetail, RouteLeaveDetail } from "./events.ts";
 import type { CompiledPath } from "./path-compile.ts";
 import { compilePath } from "./path-compile.ts";
 
+type ParamsRecord = Record<string, string>;
+
 export class MeowRoute extends HTMLElement {
-  matched = false;
-  params: Record<string, string> | null = null;
+  #matched = createSignal<boolean>(false, { ownedWrite: true });
+  #params = createSignal<ParamsRecord | null>(null, { ownedWrite: true });
   #compiled: CompiledPath | null = null;
+
+  get matched(): boolean {
+    return this.#matched[0]();
+  }
+
+  get matchedAccessor(): Accessor<boolean> {
+    return this.#matched[0];
+  }
+
+  get params(): ParamsRecord | null {
+    return this.#params[0]();
+  }
+
+  get paramsAccessor(): Accessor<ParamsRecord | null> {
+    return this.#params[0];
+  }
 
   get path(): string {
     return this.getAttribute("path") ?? "";
@@ -22,11 +41,13 @@ export class MeowRoute extends HTMLElement {
     if (!this.matched) this.hidden = true;
   }
 
-  activate(params: Record<string, string>, consumed: string): void {
-    this.params = params;
+  activate(params: ParamsRecord, consumed: string): void {
+    const wasMatched = untrack(this.#matched[0]);
+    this.#params[1](params);
+    this.#matched[1](true);
+    flush();
     this.hidden = false;
-    if (!this.matched) {
-      this.matched = true;
+    if (!wasMatched) {
       this.dispatchEvent(
         new CustomEvent<RouteMatchDetail>("route-match", {
           detail: { url: new URL(window.location.href), params, consumed },
@@ -38,10 +59,12 @@ export class MeowRoute extends HTMLElement {
   }
 
   deactivate(): void {
+    const wasMatched = untrack(this.#matched[0]);
+    this.#params[1](null);
+    this.#matched[1](false);
+    flush();
     this.hidden = true;
-    this.params = null;
-    if (this.matched) {
-      this.matched = false;
+    if (wasMatched) {
       this.dispatchEvent(
         new CustomEvent<RouteLeaveDetail>("route-leave", {
           detail: { url: new URL(window.location.href) },
