@@ -3,9 +3,11 @@ import "@picocss/pico/css/pico.min.css";
 import "./styles.css";
 
 import { createRenderEffect, createRoot } from "@solidjs/signals";
-import "../../src/index.ts";
-import type { MeowRouter } from "../../src/router-element.ts";
+import "meowter";
+import type { MeowRouter } from "meowter";
 import logoUrl from "../../meowter-logo.svg?url";
+
+const BASE = import.meta.env.BASE_URL;
 
 const logoEl = document.querySelector<HTMLImageElement>("#meowter-logo");
 if (logoEl) logoEl.src = logoUrl;
@@ -55,7 +57,7 @@ document.querySelectorAll<HTMLButtonElement>("[data-action]").forEach((btn) => {
     if (action === "navigate" && href) router.navigate(href);
     else if (action === "replace" && href) router.replace(href);
     else if (action === "navigate-state")
-      router.navigate("/examples/kitchensink/about", { from: "demo" });
+      router.navigate(`${BASE}about`, { from: "demo" });
     else if (action === "back") window.history.back();
     else if (action === "forward") window.history.forward();
   });
@@ -72,7 +74,7 @@ function pathOf(href: string): string {
 }
 
 createRoot(() => {
-  const HOME_PATH = "/examples/kitchensink/";
+  const HOME_PATH = BASE;
   createRenderEffect(
     () => router.currentURL().pathname,
     (pathname) => {

@@ -1,0 +1,44 @@
+{
+  "name": "meowter",
+  "version": "0.1.0",
+  "description": "Tiny custom-element router built on @solidjs/signals",
+  "license": "ISC",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["dist", "src", "README.md"],
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "publishConfig": {
+    "main": "./dist/meowter.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/meowter.js"
+      }
+    }
+  },
+  "peerDependencies": {
+    "@solidjs/signals": "^2.0.0-beta.10"
+  },
+  "devDependencies": {
+    "@solidjs/signals": "^2.0.0-beta.10",
+    "@types/node": "^22.0.0",
+    "happy-dom": "^20.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^8.0.0",
+    "vite-plugin-dts": "^4.0.0",
+    "vitest": "^4.0.0"
+  }
+}

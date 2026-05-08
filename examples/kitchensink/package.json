@@ -1,0 +1,23 @@
+{
+  "name": "kitchensink",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/lilex": "^5.2.1",
+    "@picocss/pico": "^2.1.1",
+    "@solidjs/signals": "^2.0.0-beta.10",
+    "meowter": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^8.0.0"
+  }
+}

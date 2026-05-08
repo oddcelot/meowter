@@ -1,29 +1,16 @@
 {
-  "name": "meowter",
-  "version": "1.0.0",
-  "description": "",
+  "name": "meowter-workspace",
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "typecheck": "tsc --noEmit"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "packageManager": "pnpm@10.25.0",
-  "devDependencies": {
-    "@types/node": "^22.0.0",
-    "happy-dom": "^20.0.0",
-    "typescript": "^5.6.0",
-    "vite": "^8.0.0",
-    "vitest": "^4.0.0"
-  },
-  "dependencies": {
-    "@fontsource-variable/lilex": "^5.2.1",
-    "@picocss/pico": "^2.1.1",
-    "@solidjs/signals": "2.0.0-beta.10"
+  "scripts": {
+    "dev": "pnpm --filter kitchensink dev",
+    "build": "pnpm -r --filter meowter --filter kitchensink build",
+    "build:lib": "pnpm --filter meowter build",
+    "build:kitchensink": "pnpm --filter kitchensink build",
+    "preview": "pnpm --filter kitchensink preview",
+    "test": "pnpm --filter meowter test",
+    "typecheck": "pnpm -r typecheck"
   }
 }
