@@ -11,6 +11,14 @@
       meow-route:not([hidden]) { display: block; }
       .layout { padding: 1rem; border: 1px solid #ddd; border-radius: 6px; }
       .layout meow-outlet { display: block; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed #ddd; }
+      .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+      .panel { padding: 0.75rem 1rem; border: 1px solid #eee; border-radius: 6px; font-size: 0.85rem; }
+      .panel h3 { margin: 0 0 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #666; }
+      .panel ol { margin: 0; padding-left: 1.25rem; }
+      .panel li { font-family: ui-monospace, monospace; }
+      .panel li.active { font-weight: 700; }
+      .filter-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+      .filter-row input { flex: 1; padding: 0.25rem 0.5rem; }
     </style>
   </head>
   <body>
@@ -34,6 +42,11 @@
         <meow-route path="/cats">
           <div class="layout">
             <h2>cats</h2>
+            <div class="filter-row">
+              <label for="filter">filter:</label>
+              <input id="filter" type="text" placeholder="type to filter (replaces ?filter=)" />
+            </div>
+            <p id="filter-status"></p>
             <meow-outlet>
               <meow-route path="">
                 <p>all cats: whiskers, mittens, biscuit</p>
@@ -58,6 +71,17 @@
           <p>nothing here.</p>
         </meow-route>
       </meow-outlet>
+
+      <div class="panels">
+        <div class="panel">
+          <h3>history</h3>
+          <ol id="history-list"></ol>
+        </div>
+        <div class="panel">
+          <h3>search params</h3>
+          <pre id="search-list"></pre>
+        </div>
+      </div>
     </meow-router>
 
     <script type="module" src="/src/main.ts"></script>

@@ -29,9 +29,14 @@ If the answer is "I just want a single value that updates", a signal is correct 
 
 ### Where stores actually fit in this codebase
 
-The features below are **future** — we have no consumer asking for them today. This section documents how to plug them in cleanly when the time comes.
+A and B below are **implemented** (see "Status" notes). C and D remain future.
 
 #### A. Search params — the most interesting fit
+
+> **Status:** ✅ Implemented in `src/router-element.ts` (`searchParams` getter, `setSearchParam` method, `replace` sibling to `navigate`). Tests in `src/stores.test.ts`. The design below is preserved as the *intent*; the **shipped shape diverges in two places**:
+>
+> 1. **Multi-value keys** — `searchParams: Record<string, string[]>` (always arrays), not `Record<string, string>`. Honest about `URLSearchParams.getAll()` semantics; consumers do `params.foo?.[0]` for single-value access.
+> 2. **`setSearchParam` accepts `string | string[] | null`** — `null` removes the key, `string[]` writes multi-value, `string` writes single. `options.history` defaults to `"replace"` (per design); pass `"push"` for explicit history entries.
 
 **Problem:** the URL signal already carries `?foo=bar&baz=qux`, but selection only inspects `pathname`. If a route's content depends on the query (e.g. a list filtered by `?filter=...`), the consumer has two bad options today:
 
@@ -102,7 +107,18 @@ createRenderEffect(
 | New tests: per-key memo only re-runs when its key changes         | `src/signals.test.ts` or new   |
 | Demo: `index.html` adds a filter input wired to `setSearchParam`  | `index.html`, `src/main.ts`     |
 
-#### B. Route history — when we add back/forward UI
+#### B. Route history — implemented
+
+> **Status:** ✅ Implemented in `src/router-element.ts` (`history` getter exposing `{ entries, index }`). Tests in `src/stores.test.ts`. The shipped shape diverges from the design sketch in one significant way: **`HistoryEntry.url: URL` became `HistoryEntry.href: string`** because URL instances cannot live inside a Solid store proxy (see finding F9 below).
+>
+> Implementation notes worth remembering:
+>
+> - **State wrapping.** Each entry gets a synthetic `id: number`. On `navigate`/`replace` we wrap user state in `{ __meowterHistoryId: id, user: <yours> }` and pass the wrapper to `history.pushState`/`replaceState`. On `popstate` we read the id back and find the matching entry — that's how index updates correctly even after multiple back/forwards.
+> - **`currentState()` always returns user state.** The wrapper is unwrapped before exposure. Tests assert this (`router.currentState()` returns `{ from: "test" }`, not `{ __meowterHistoryId: ..., user: ... }`).
+> - **External popstate** (state shape ≠ ours, e.g. landing on a page someone else pushed) is handled by synthesizing a one-entry stack from the current URL. No throw, no contamination.
+> - **`replace()` was added as a sibling to `navigate()`.** Necessary for `setSearchParam` to default to non-history-polluting writes. The shape mirrors `navigate` exactly.
+>
+> Original design follows for context.
 
 If we ever build "back to last cat detail" UI, we'd want a stack-of-URLs that's both reactive and per-entry observable.
 
@@ -230,13 +246,32 @@ import "./outlet-element.ts";
 
 Don't reorder casually.
 
-### F9. What we explicitly didn't do, and why
+### F9. Built-in classes with private slots break Solid stores
+
+`URL`, `URLSearchParams`, `Map`, `Set`, `Date`, and any other built-in (or user) class that uses private fields (`#foo`) or internal slots (`Reflect.get`-incompatible) **cannot be stored as values inside a Solid store**. The store wraps every value in a tracking proxy. When the proxy traps `get` and forwards to the underlying object, methods like `URL.prototype.pathname`'s getter try to access `this.#context` (or equivalent) — and `this` is the proxy, not the original instance. Result:
+
+```
+TypeError: Cannot read private member #context from an object whose class did not declare it
+```
+
+We hit this when `HistoryEntry.url: URL` was first stored. Fix: store `href: string` and let consumers `new URL(entry.href, base)` if they need parsing.
+
+**Rule of thumb:** store values inside a Solid store should be plain JSON-shaped (objects, arrays, primitives). For anything class-instance-y, store an "address" (id, href, key) and look the real instance up outside the store.
+
+This isn't a Solid bug — it's how JS private fields work with proxies. Same gotcha exists in MobX, Vue's `reactive()`, etc.
+
+### F10. `vi.spyOn` doesn't auto-restore between tests
+
+When tests in `src/stores.test.ts` first ran, the `replace()` test failed because a `pushState` call from a *previous* test was attributed to the spy in the current test. Vitest's default config doesn't restore spies automatically. Fix: explicit `vi.restoreAllMocks()` in `afterEach`. Already done in `router-element.test.ts`; replicate in any test file using `vi.spyOn` on shared globals like `window.history`.
+
+Alternatively, set `restoreMocks: true` in `vite.config.ts`'s `test` block to make this the default — worth doing if we add more spy-using tests. Not done yet because explicit `restoreAllMocks` is more grep-able.
+
+### F11. What we explicitly didn't do, and why
 
 - **Module-scope signals.** Could silence `ownedWrite` requirement. Trade-off: makes the URL global across all `<meow-router>` instances. Today nobody mounts two; if they did, surprising. Keep the flag.
 - **`createEffect` instead of `createRenderEffect`.** `createEffect` batches into a microtask. We need synchronous DOM updates so `flush()` callers see the latest paint state. `createRenderEffect` is correct.
 - **`lazy: true` on memos.** `selection`/`remainder`/`selectedRoute` are always observed by our render effect. Lazy buys nothing.
-- **Active-link styling.** Not in scope yet. When it is, see F1's projection idea above.
-- **Route history exposure.** Handled by `window.history` already. Build a wrapper only when there's a UI need.
+- **Active-link styling.** Not in scope yet. When it is, see Part 1.D's projection idea above.
 
 ---
 

@@ -17,6 +17,23 @@ export interface RouteLeaveDetail {
   url: URL;
 }
 
+export interface HistoryEntry {
+  id: number;
+  href: string;
+  state: unknown;
+}
+
+export interface HistoryState {
+  entries: HistoryEntry[];
+  index: number;
+}
+
+export interface SetSearchParamOptions {
+  history?: "push" | "replace";
+}
+
+export type SearchParamValue = string | string[] | null;
+
 declare global {
   interface HTMLElementTagNameMap {
     "meow-router": MeowRouter;
