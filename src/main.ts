@@ -1,4 +1,4 @@
-import "./route.ts";
+import "./index.ts";
 
 document.querySelectorAll<HTMLElement>("meow-route").forEach((route) => {
   route.addEventListener("route-match", (event) => {

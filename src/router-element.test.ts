@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { MeowRouter, RouteChangeDetail } from "./router.ts";
-import "./router.ts";
+import "./router-element.ts";
+import type { MeowRouter } from "./router-element.ts";
+import type { RouteChangeDetail } from "./events.ts";
 
 function clickEvent(extra: MouseEventInit = {}): MouseEvent {
   return new MouseEvent("click", {

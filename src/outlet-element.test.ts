@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import "./route.ts";
-import type { MeowRouter } from "./router.ts";
-import type { MeowOutlet, MeowRoute, RouteMatchDetail, RouteLeaveDetail } from "./route.ts";
+import "./index.ts";
+import type { MeowRouter } from "./router-element.ts";
+import type { MeowRoute } from "./route-element.ts";
+import type { MeowOutlet } from "./outlet-element.ts";
+import type { RouteMatchDetail, RouteLeaveDetail } from "./events.ts";
 
 function setURL(path: string): void {
   window.history.replaceState(null, "", path);
@@ -23,7 +25,7 @@ function getRoute(root: ParentNode, path: string): MeowRoute {
   return r;
 }
 
-describe("MeowRoute + MeowOutlet", () => {
+describe("MeowOutlet selection", () => {
   beforeEach(() => {
     setURL("/");
   });

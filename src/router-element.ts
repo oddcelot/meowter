@@ -1,34 +1,10 @@
-export interface RouteChangeDetail {
-  url: URL;
-  state: unknown;
-}
+import type { RouteChangeDetail } from "./events.ts";
+import { shouldInterceptLinkClick } from "./link-intercept.ts";
 
 export class MeowRouter extends HTMLElement {
   #onClick = (event: MouseEvent): void => {
-    if (event.defaultPrevented) return;
-    if (event.button !== 0) return;
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-
-    const anchor = target.closest("a");
-    if (!anchor) return;
-
-    const href = anchor.getAttribute("href");
-    if (href === null) return;
-
-    const targetAttr = anchor.getAttribute("target");
-    if (targetAttr !== null && targetAttr !== "_self") return;
-
-    if (anchor.hasAttribute("download")) return;
-
-    const rel = anchor.getAttribute("rel");
-    if (rel !== null && rel.split(/\s+/).includes("external")) return;
-
-    const url = new URL(href, window.location.href);
-    if (url.origin !== window.location.origin) return;
-
+    const url = shouldInterceptLinkClick(event);
+    if (!url) return;
     event.preventDefault();
     this.navigate(url.href);
   };
@@ -49,7 +25,8 @@ export class MeowRouter extends HTMLElement {
 
   navigate(href: string, state?: unknown): void {
     const url = new URL(href, window.location.href);
-    const current = window.location.pathname + window.location.search + window.location.hash;
+    const current =
+      window.location.pathname + window.location.search + window.location.hash;
     const next = url.pathname + url.search + url.hash;
 
     if (current !== next) {
@@ -72,13 +49,4 @@ export class MeowRouter extends HTMLElement {
 
 if (!customElements.get("meow-router")) {
   customElements.define("meow-router", MeowRouter);
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    "meow-router": MeowRouter;
-  }
-  interface HTMLElementEventMap {
-    "route-change": CustomEvent<RouteChangeDetail>;
-  }
 }
