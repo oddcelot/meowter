@@ -15,7 +15,6 @@ if (logoEl) logoEl.src = logoUrl;
 const router = document.querySelector<MeowRouter>("meow-router");
 if (!router) throw new Error("kitchen sink: meow-router missing");
 
-
 const filterInput = document.querySelector<HTMLInputElement>("#search-filter");
 const sortSelect = document.querySelector<HTMLSelectElement>("#search-sort");
 const addTagBtn = document.querySelector<HTMLButtonElement>("#search-add-tag");
@@ -102,7 +101,8 @@ createRoot(() => {
   createRenderEffect(
     () => router.searchParams.filter?.[0] ?? "",
     (filter) => {
-      if (filterInput && filterInput.value !== filter) filterInput.value = filter;
+      if (filterInput && filterInput.value !== filter)
+        filterInput.value = filter;
     },
   );
 
@@ -116,7 +116,8 @@ createRoot(() => {
   createRenderEffect(
     () => JSON.stringify(router.searchParams, null, 2),
     (text) => {
-      if (searchReadout) searchReadout.textContent = text === "{}" ? "(none)" : text;
+      if (searchReadout)
+        searchReadout.textContent = text === "{}" ? "(none)" : text;
     },
   );
 

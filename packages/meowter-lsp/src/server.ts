@@ -31,7 +31,6 @@ connection.onInitialize(
 
     routeIndex = await createRouteIndex({
       workspaceFolders: folders,
-      globs: ["**/*.html", "!**/node_modules/**", "!**/dist/**"],
     });
 
     return {

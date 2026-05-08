@@ -5,9 +5,22 @@ import type { ExtractOptions } from "meowter/codegen";
 
 export interface RouteIndexOptions {
   workspaceFolders: readonly string[];
-  globs: string[];
+  /**
+   * Path patterns ignored during scanning. Matched against the absolute
+   * path with `String.prototype.includes` (substring match). Defaults
+   * cover `node_modules` and build outputs.
+   */
+  ignore?: readonly string[];
   extract?: ExtractOptions;
 }
+
+const DEFAULT_IGNORE = [
+  "/node_modules/",
+  "/dist/",
+  "/.git/",
+  "/.cache/",
+  "/.zed/",
+];
 
 export interface RouteIndex {
   paths(): readonly string[];
@@ -52,31 +65,49 @@ export async function createRouteIndex(
     perFile.delete(file);
   };
 
-  const watcher = chokidar.watch(options.globs, {
-    cwd:
-      options.workspaceFolders[0] !== undefined
-        ? options.workspaceFolders[0]
-        : process.cwd(),
+  const ignore = [...DEFAULT_IGNORE, ...(options.ignore ?? [])];
+  const isIgnored = (path: string): boolean =>
+    ignore.some((pattern) => path.includes(pattern));
+  const isHtml = (path: string): boolean =>
+    path.endsWith(".html") || path.endsWith(".htm");
+
+  const watchTargets = options.workspaceFolders.length
+    ? Array.from(options.workspaceFolders)
+    : [process.cwd()];
+
+  const watcher = chokidar.watch(watchTargets, {
     ignoreInitial: false,
     awaitWriteFinish: { stabilityThreshold: 50, pollInterval: 25 },
+    ignored: (path) => isIgnored(path),
   });
+
+  const pendingInitial: Array<Promise<void>> = [];
+  let ready = false;
 
   await new Promise<void>((res) => {
     watcher.on("ready", () => {
+      ready = true;
       res();
     });
     watcher.on("add", (file) => {
-      void ingest(file).then(recompute);
+      if (!isHtml(file)) return;
+      const job = ingest(file).then(() => {
+        if (ready) recompute();
+      });
+      if (!ready) pendingInitial.push(job);
     });
     watcher.on("change", (file) => {
+      if (!isHtml(file)) return;
       void ingest(file).then(recompute);
     });
     watcher.on("unlink", (file) => {
+      if (!isHtml(file)) return;
       drop(file);
       recompute();
     });
   });
 
+  await Promise.all(pendingInitial);
   recompute();
 
   return {
