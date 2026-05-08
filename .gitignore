@@ -94,3 +94,7 @@ examples/*/dist
 # meowter codegen
 meowter-routes.d.ts
 **/meowter-routes.d.ts
+
+# editor / tooling caches
+.fallow/
+**/.fallow/

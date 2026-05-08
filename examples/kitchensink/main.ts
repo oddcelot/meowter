@@ -4,7 +4,7 @@ import "./styles.css";
 
 import { createRenderEffect, createRoot } from "@solidjs/signals";
 import "meowter";
-import type { MeowRoute, MeowRouter } from "meowter";
+import type { MeowRoute, MeowRouter, RegisteredPath } from "meowter";
 import logoUrl from "../../meowter-logo.svg?url";
 
 const BASE = import.meta.env.BASE_URL;
@@ -44,11 +44,12 @@ clearBtn?.addEventListener("click", () => {
 document.querySelectorAll<HTMLButtonElement>("[data-action]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const action = btn.dataset["action"];
-    const href = btn.dataset["href"];
+    // data-href is authored HTML; cast at the trust boundary
+    const href = btn.dataset["href"] as RegisteredPath | undefined;
     if (action === "navigate" && href) router.navigate(href);
     else if (action === "replace" && href) router.replace(href);
     else if (action === "navigate-state")
-      router.navigate(`${BASE}about`, { from: "demo" });
+      router.navigate("/about", { from: "demo" });
     else if (action === "back") window.history.back();
     else if (action === "forward") window.history.forward();
   });

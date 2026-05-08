@@ -62,7 +62,7 @@ export class MeowOutlet extends HTMLElement {
 
       const input = createMemo<string>(() => {
         if (ancestorOutlet) return ancestorOutlet.remainder();
-        return router.currentURL().pathname;
+        return router.routablePathname();
       });
 
       const selection = createMemo(() => {

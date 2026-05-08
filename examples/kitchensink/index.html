@@ -6,7 +6,7 @@
         <title>meowter — kitchen sink</title>
     </head>
     <body>
-        <meow-router>
+        <meow-router base="{{BASE}}">
             <div class="layout">
                 <aside>
                     <header class="brand">
@@ -19,20 +19,20 @@
 
                     <nav aria-label="Primary">
                         <ul>
-                            <li><a href="{{BASE}}" data-nav>Home</a></li>
-                            <li><a href="{{BASE}}cats" data-nav>Cats</a></li>
-                            <li><a href="{{BASE}}dogs" data-nav>Dogs</a></li>
+                            <li><a href="/" data-nav>Home</a></li>
+                            <li><a href="/cats" data-nav>Cats</a></li>
+                            <li><a href="/dogs" data-nav>Dogs</a></li>
                             <li>
-                                <a href="{{BASE}}search" data-nav
+                                <a href="/search" data-nav
                                     >Search params</a
                                 >
                             </li>
                             <li>
-                                <a href="{{BASE}}programmatic" data-nav
+                                <a href="/programmatic" data-nav
                                     >Programmatic</a
                                 >
                             </li>
-                            <li><a href="{{BASE}}about" data-nav>About</a></li>
+                            <li><a href="/about" data-nav>About</a></li>
                         </ul>
                     </nav>
 
@@ -44,7 +44,7 @@
 
                 <main class="container">
                     <meow-outlet>
-                        <meow-route path="{{BASE}}">
+                        <meow-route path="/">
                             <article>
                                 <header><h1>Home</h1></header>
                                 <p>
@@ -76,32 +76,32 @@
                             </article>
                         </meow-route>
 
-                        <meow-route path="{{BASE}}cats">
+                        <meow-route path="/cats">
                             <article>
                                 <header>
                                     <h1>Cats</h1>
                                     <nav>
                                         <ul>
                                             <li>
-                                                <a href="{{BASE}}cats">All</a>
+                                                <a href="/cats">All</a>
                                             </li>
                                             <li>
-                                                <a href="{{BASE}}cats/new"
+                                                <a href="/cats/new"
                                                     >New</a
                                                 >
                                             </li>
                                             <li>
-                                                <a href="{{BASE}}cats/whiskers"
+                                                <a href="/cats/whiskers"
                                                     >Whiskers</a
                                                 >
                                             </li>
                                             <li>
-                                                <a href="{{BASE}}cats/mittens"
+                                                <a href="/cats/mittens"
                                                     >Mittens</a
                                                 >
                                             </li>
                                             <li>
-                                                <a href="{{BASE}}cats/biscuit"
+                                                <a href="/cats/biscuit"
                                                     >Biscuit</a
                                                 >
                                             </li>
@@ -195,7 +195,7 @@
                             </article>
                         </meow-route>
 
-                        <meow-route path="{{BASE}}dogs">
+                        <meow-route path="/dogs">
                             <article>
                                 <header><h1>Dogs</h1></header>
                                 <p>Wrong house.</p>
@@ -210,7 +210,7 @@
                             </article>
                         </meow-route>
 
-                        <meow-route path="{{BASE}}search">
+                        <meow-route path="/search">
                             <article>
                                 <header><h1>Search params</h1></header>
                                 <p>
@@ -257,7 +257,7 @@
                             </article>
                         </meow-route>
 
-                        <meow-route path="{{BASE}}programmatic">
+                        <meow-route path="/programmatic">
                             <article>
                                 <header><h1>Programmatic</h1></header>
                                 <p>
@@ -266,19 +266,19 @@
                                 <div class="grid">
                                     <button
                                         data-action="navigate"
-                                        data-href="{{BASE}}"
+                                        data-href="/"
                                     >
                                         navigate(/)
                                     </button>
                                     <button
                                         data-action="navigate"
-                                        data-href="{{BASE}}cats/whiskers"
+                                        data-href="/cats/whiskers"
                                     >
                                         navigate(/cats/whiskers)
                                     </button>
                                     <button
                                         data-action="replace"
-                                        data-href="{{BASE}}cats/mittens"
+                                        data-href="/cats/mittens"
                                     >
                                         replace(/cats/mittens)
                                     </button>
@@ -304,7 +304,7 @@
                             </article>
                         </meow-route>
 
-                        <meow-route path="{{BASE}}about">
+                        <meow-route path="/about">
                             <article>
                                 <header><h1>About</h1></header>
                                 <p>
@@ -332,7 +332,7 @@
                                 <p>
                                     Nothing here — the catch-all route matched.
                                 </p>
-                                <p><a href="{{BASE}}">Back home</a></p>
+                                <p><a href="/">Back home</a></p>
                             </article>
                         </meow-route>
                     </meow-outlet>

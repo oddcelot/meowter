@@ -11,6 +11,7 @@ import type {
   SearchParamValue,
   SetSearchParamOptions,
 } from "./events.ts";
+import type { RegisteredPath } from "./index.ts";
 import { shouldInterceptLinkClick } from "./link-intercept.ts";
 
 const HISTORY_KEY = "__meowterHistoryId";
@@ -82,11 +83,69 @@ export class MeowRouter extends HTMLElement {
     return this.#history[0];
   }
 
+  /**
+   * Sub-path the router operates within. Defaults to `"/"`. Set via the
+   * `base` attribute (e.g. `<meow-router base="/meowter/">`) for sub-path
+   * deploys (GitHub Pages, etc.). Always normalized to a trailing slash.
+   */
+  get base(): string {
+    const attr = this.getAttribute("base");
+    if (!attr || attr === "/") return "/";
+    return attr.endsWith("/") ? attr : attr + "/";
+  }
+
+  /**
+   * Current pathname with the configured `base` stripped. Outlets match
+   * against this so route paths can be authored base-less.
+   */
+  get routablePathname(): Accessor<string> {
+    return this.#routablePathnameAcc;
+  }
+
+  #routablePathnameAcc = (): string => {
+    return this.#stripBase(this.#url[0]().pathname);
+  };
+
+  #stripBase(pathname: string): string {
+    const base = this.base;
+    if (base === "/") return pathname;
+    const trimmed = base.replace(/\/$/, ""); // "/meowter"
+    if (pathname === trimmed) return "/";
+    if (pathname.startsWith(trimmed + "/")) {
+      return pathname.slice(trimmed.length);
+    }
+    return pathname;
+  }
+
+  /**
+   * Prepend `base` to `href` if it's a base-less absolute path. Full
+   * URLs and already-prefixed paths pass through unchanged.
+   */
+  #applyBase(href: string): string {
+    const base = this.base;
+    if (base === "/") return href;
+    let url: URL;
+    try {
+      url = new URL(href, window.location.href);
+    } catch {
+      return href;
+    }
+    const trimmed = base.replace(/\/$/, "");
+    if (url.pathname === trimmed || url.pathname.startsWith(trimmed + "/")) {
+      return url.href;
+    }
+    if (url.pathname.startsWith("/")) {
+      url.pathname = trimmed + url.pathname;
+      return url.href;
+    }
+    return href;
+  }
+
   #onClick = (event: MouseEvent): void => {
     const url = shouldInterceptLinkClick(event);
     if (!url) return;
     event.preventDefault();
-    this.navigate(url.href);
+    this.navigate(url.href as RegisteredPath);
   };
 
   #onPopState = (event: PopStateEvent): void => {
@@ -140,8 +199,9 @@ export class MeowRouter extends HTMLElement {
     window.removeEventListener("popstate", this.#onPopState);
   }
 
-  navigate(href: string, state?: unknown): void {
-    const url = new URL(href, window.location.href);
+  navigate(href: RegisteredPath, state?: unknown): void {
+    const finalHref = this.#applyBase(href);
+    const url = new URL(finalHref, window.location.href);
     const current =
       window.location.pathname + window.location.search + window.location.hash;
     const next = url.pathname + url.search + url.hash;
@@ -165,8 +225,9 @@ export class MeowRouter extends HTMLElement {
     this.#emit(url, state ?? null);
   }
 
-  replace(href: string, state?: unknown): void {
-    const url = new URL(href, window.location.href);
+  replace(href: RegisteredPath, state?: unknown): void {
+    const finalHref = this.#applyBase(href);
+    const url = new URL(finalHref, window.location.href);
     const id = this.#nextHistoryId++;
     window.history.replaceState(wrap(id, state ?? null), "", url.href);
 
@@ -201,8 +262,8 @@ export class MeowRouter extends HTMLElement {
       }
     }
     const mode = options.history ?? "replace";
-    if (mode === "push") this.navigate(url.href);
-    else this.replace(url.href);
+    if (mode === "push") this.navigate(url.href as RegisteredPath);
+    else this.replace(url.href as RegisteredPath);
   }
 
   #emit(url: URL, state: unknown): void {
