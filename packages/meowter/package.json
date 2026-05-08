@@ -10,9 +10,24 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./codegen": {
+      "types": "./src/codegen/index.ts",
+      "default": "./src/codegen/index.ts"
+    },
+    "./vite-plugin": {
+      "types": "./src/codegen/vite-plugin.ts",
+      "default": "./src/codegen/vite-plugin.ts"
     }
   },
-  "files": ["dist", "src", "README.md"],
+  "bin": {
+    "meowter-routes": "./src/codegen/cli.ts"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "build": "vite build",
     "test": "vitest run",
@@ -26,7 +41,18 @@
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/meowter.js"
+      },
+      "./codegen": {
+        "types": "./dist/codegen.d.ts",
+        "import": "./dist/codegen.js"
+      },
+      "./vite-plugin": {
+        "types": "./dist/vite-plugin.d.ts",
+        "import": "./dist/vite-plugin.js"
       }
+    },
+    "bin": {
+      "meowter-routes": "./dist/cli.js"
     }
   },
   "peerDependencies": {
@@ -40,5 +66,9 @@
     "vite": "^8.0.0",
     "vite-plugin-dts": "^4.0.0",
     "vitest": "^4.0.0"
+  },
+  "dependencies": {
+    "node-html-parser": "^7.1.0",
+    "tinyglobby": "^0.2.16"
   }
 }
