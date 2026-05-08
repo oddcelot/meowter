@@ -1,7 +1,26 @@
+import { createSignal, flush, type Accessor } from "@solidjs/signals";
 import type { RouteChangeDetail } from "./events.ts";
 import { shouldInterceptLinkClick } from "./link-intercept.ts";
 
+const INITIAL_URL = new URL(
+  typeof window !== "undefined" ? window.location.href : "http://localhost/",
+);
+
 export class MeowRouter extends HTMLElement {
+  #url = createSignal<URL>(INITIAL_URL, {
+    pureWrite: true,
+    equals: (a, b) => a.href === b.href,
+  });
+  #state = createSignal<unknown>(null, { pureWrite: true });
+
+  get currentURL(): Accessor<URL> {
+    return this.#url[0];
+  }
+
+  get currentState(): Accessor<unknown> {
+    return this.#state[0];
+  }
+
   #onClick = (event: MouseEvent): void => {
     const url = shouldInterceptLinkClick(event);
     if (!url) return;
@@ -10,12 +29,19 @@ export class MeowRouter extends HTMLElement {
   };
 
   #onPopState = (event: PopStateEvent): void => {
-    this.#emit(new URL(window.location.href), event.state);
+    const url = new URL(window.location.href);
+    this.#url[1](url);
+    this.#state[1](event.state);
+    flush();
+    this.#emit(url, event.state);
   };
 
   connectedCallback(): void {
     this.addEventListener("click", this.#onClick, { capture: true });
     window.addEventListener("popstate", this.#onPopState);
+    this.#url[1](new URL(window.location.href));
+    this.#state[1](window.history.state);
+    flush();
   }
 
   disconnectedCallback(): void {
@@ -33,6 +59,9 @@ export class MeowRouter extends HTMLElement {
       window.history.pushState(state ?? null, "", url.href);
     }
 
+    this.#url[1](url);
+    this.#state[1](state ?? null);
+    flush();
     this.#emit(url, state ?? null);
   }
 

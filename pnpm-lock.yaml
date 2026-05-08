@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@solidjs/signals':
+        specifier: ^0.13.13
+        version: 0.13.13
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
@@ -138,6 +142,9 @@ packages:
 
   '@rolldown/pluginutils@1.0.0-rc.18':
     resolution: {integrity: sha512-CUY5Mnhe64xQBGZEEXQ5WyZwsc1JU3vAZLIxtrsBt3LO6UOb+C8GunVKqe9sT8NeWb4lqSaoJtp2xo6GxT1MNw==}
+
+  '@solidjs/signals@0.13.13':
+    resolution: {integrity: sha512-4FrkhyvbAT5V6vprmv9Qoi5DAMzo25zkTa7ifEH1W1pwtU6N95ErEZZot8j2rm+KIRYlto9Kq0dzn6nNRdW/uA==}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -562,6 +569,8 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.0-rc.18': {}
+
+  '@solidjs/signals@0.13.13': {}
 
   '@standard-schema/spec@1.1.0': {}
 

@@ -1,82 +1,113 @@
-import { computeRemainder, selectFor } from "./path-select.ts";
+import {
+  createMemo,
+  createRenderEffect,
+  createRoot,
+  type Accessor,
+} from "@solidjs/signals";
+import { computeRemainder, selectFor, type RouteCandidate } from "./path-select.ts";
 import { MeowRoute } from "./route-element.ts";
+import { MeowRouter } from "./router-element.ts";
+
+const NULL_REMAINDER: Accessor<string> = () => "";
+const NULL_SELECTED: Accessor<MeowRoute | null> = () => null;
 
 export class MeowOutlet extends HTMLElement {
-  remainder = "";
-  #router: HTMLElement | null = null;
-  #onRouteChange = (): void => this.#evaluate();
+  remainder: Accessor<string> = NULL_REMAINDER;
+  selectedRoute: Accessor<MeowRoute | null> = NULL_SELECTED;
+  #disposeRoot: (() => void) | null = null;
+  #setupScheduled = false;
 
   connectedCallback(): void {
-    this.#router = this.closest("meow-router");
-    if (this.#router) {
-      this.#router.addEventListener("route-change", this.#onRouteChange);
-    }
-    queueMicrotask(() => this.#evaluate());
+    if (this.#setupScheduled) return;
+    this.#setupScheduled = true;
+    queueMicrotask(() => this.#setup());
   }
 
   disconnectedCallback(): void {
-    if (this.#router) {
-      this.#router.removeEventListener("route-change", this.#onRouteChange);
-      this.#router = null;
-    }
+    this.#disposeRoot?.();
+    this.#disposeRoot = null;
+    this.#setupScheduled = false;
+    this.remainder = NULL_REMAINDER;
+    this.selectedRoute = NULL_SELECTED;
   }
 
-  #directRoutes(): MeowRoute[] {
-    const out: MeowRoute[] = [];
-    for (const child of Array.from(this.children)) {
-      if (child instanceof MeowRoute) out.push(child);
-    }
-    return out;
-  }
-
-  #ancestorChainActive(): boolean {
-    let walker: Element | null = this.parentElement;
-    while (walker && walker !== this.#router) {
-      if (walker instanceof MeowRoute && !walker.matched) return false;
-      walker = walker.parentElement;
-    }
-    return true;
-  }
-
-  #computeInput(): string {
-    let walker: Element | null = this.parentElement;
-    while (walker && walker !== this.#router) {
-      if (walker instanceof MeowOutlet) return walker.remainder;
-      walker = walker.parentElement;
-    }
-    return window.location.pathname;
-  }
-
-  #evaluate(): void {
+  #setup(): void {
     if (!this.isConnected) return;
 
-    const routes = this.#directRoutes();
+    const router = this.closest("meow-router");
+    if (!(router instanceof MeowRouter)) return;
 
-    if (!this.#ancestorChainActive()) {
-      for (const route of routes) route.deactivate();
-      this.remainder = "";
-      return;
+    const ancestorOutlet = this.#findAncestorOutlet(router);
+    const ancestorRoute = this.#findAncestorRoute(router);
+
+    const directRoutes: MeowRoute[] = [];
+    for (const child of Array.from(this.children)) {
+      if (child instanceof MeowRoute) directRoutes.push(child);
     }
 
-    const candidates = routes.map((route) => ({
-      route,
-      compiledPath: route.compiledPath,
-      hasNestedOutlet: route.querySelector("meow-outlet") !== null,
-    }));
+    const candidates: Array<{ route: MeowRoute } & RouteCandidate> = directRoutes.map(
+      (route) => ({
+        route,
+        compiledPath: route.compiledPath,
+        hasNestedOutlet: route.querySelector("meow-outlet") !== null,
+      }),
+    );
 
-    const input = this.#computeInput();
-    const result = selectFor(input, candidates);
+    this.#disposeRoot = createRoot((dispose) => {
+      const reachable = createMemo<boolean>(() => {
+        if (!ancestorOutlet || !ancestorRoute) return true;
+        return ancestorOutlet.selectedRoute() === ancestorRoute;
+      });
 
-    for (const route of routes) {
-      if (result === null || result.route.route !== route) route.deactivate();
+      const input = createMemo<string>(() => {
+        if (ancestorOutlet) return ancestorOutlet.remainder();
+        return router.currentURL().pathname;
+      });
+
+      const selection = createMemo(() => {
+        if (!reachable()) return null;
+        return selectFor(input(), candidates);
+      });
+
+      this.selectedRoute = createMemo<MeowRoute | null>(
+        () => selection()?.route.route ?? null,
+      );
+
+      this.remainder = createMemo<string>(() => {
+        const sel = selection();
+        return sel ? computeRemainder(input(), sel.consumed) : "";
+      });
+
+      createRenderEffect<ReturnType<typeof selection>>(
+        () => selection(),
+        (sel) => {
+          for (const { route } of candidates) {
+            if (sel === null || sel.route.route !== route) route.deactivate();
+          }
+          if (sel) sel.route.route.activate(sel.params, sel.consumed);
+        },
+      );
+
+      return dispose;
+    });
+  }
+
+  #findAncestorOutlet(router: MeowRouter): MeowOutlet | null {
+    let walker: Element | null = this.parentElement;
+    while (walker && walker !== router) {
+      if (walker instanceof MeowOutlet) return walker;
+      walker = walker.parentElement;
     }
+    return null;
+  }
 
-    if (result) {
-      result.route.route.activate(result.params, result.consumed);
-      this.remainder = computeRemainder(input, result.consumed);
-    } else {
-      this.remainder = "";
+  #findAncestorRoute(router: MeowRouter): MeowRoute | null {
+    let walker: Element | null = this.parentElement;
+    while (walker && walker !== router) {
+      if (walker instanceof MeowRoute) return walker;
+      walker = walker.parentElement;
     }
+    return null;
   }
 }
 
