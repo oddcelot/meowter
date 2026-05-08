@@ -1,11 +1,10 @@
-import "./router.ts";
+import "./route.ts";
 
-const router = document.querySelector("meow-router");
-const log = document.querySelector<HTMLPreElement>("#log");
-
-if (router && log) {
-  router.addEventListener("route-change", (event) => {
-    const line = `${new Date().toISOString().slice(11, 19)}  ${event.detail.url.pathname}${event.detail.url.search}${event.detail.url.hash}`;
-    log.textContent = `${line}\n${log.textContent ?? ""}`;
+document.querySelectorAll<HTMLElement>("meow-route").forEach((route) => {
+  route.addEventListener("route-match", (event) => {
+    for (const target of route.querySelectorAll<HTMLElement>("[data-param]")) {
+      const name = target.dataset["param"];
+      if (name) target.textContent = event.detail.params[name] ?? "";
+    }
   });
-}
+});

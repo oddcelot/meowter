@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>meowter</title>
+    <style>
+      body { font-family: ui-sans-serif, system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+      nav { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+      h2 { margin-block: 0.5rem; }
+      meow-route:not([hidden]) { display: block; }
+      .layout { padding: 1rem; border: 1px solid #ddd; border-radius: 6px; }
+      .layout meow-outlet { display: block; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed #ddd; }
+    </style>
   </head>
   <body>
     <h1>meowter router demo</h1>
@@ -12,12 +20,46 @@
         <a href="/">home</a>
         <a href="/cats">cats</a>
         <a href="/cats/whiskers">whiskers</a>
-        <a href="https://example.com">external (ignored)</a>
-        <a href="/file.txt" download>download (ignored)</a>
-        <a href="/new" target="_blank">new tab (ignored)</a>
+        <a href="/cats/new">new cat</a>
+        <a href="/dogs">dogs</a>
+        <a href="/garbage">garbage</a>
       </nav>
-      <pre id="log"></pre>
+
+      <meow-outlet>
+        <meow-route path="/">
+          <h2>home</h2>
+          <p>welcome to meowter.</p>
+        </meow-route>
+
+        <meow-route path="/cats">
+          <div class="layout">
+            <h2>cats</h2>
+            <meow-outlet>
+              <meow-route path="">
+                <p>all cats: whiskers, mittens, biscuit</p>
+              </meow-route>
+              <meow-route path="new">
+                <p>new cat form goes here</p>
+              </meow-route>
+              <meow-route path=":id">
+                <p>cat detail: <strong data-param="id"></strong></p>
+              </meow-route>
+            </meow-outlet>
+          </div>
+        </meow-route>
+
+        <meow-route path="/dogs">
+          <h2>dogs</h2>
+          <p>not many here.</p>
+        </meow-route>
+
+        <meow-route path="*">
+          <h2>404</h2>
+          <p>nothing here.</p>
+        </meow-route>
+      </meow-outlet>
     </meow-router>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
