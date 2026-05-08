@@ -1,0 +1,24 @@
+{
+  "lsp": {
+    "meowter-lsp": {
+      "binary": {
+        "path": "node",
+        "arguments": ["./packages/meowter-lsp/dist/server.js", "--stdio"]
+      }
+    }
+  },
+  "languages": {
+    "HTML": {
+      "language_servers": ["...", "meowter-lsp"]
+    },
+    "TypeScript": {
+      "language_servers": ["...", "meowter-lsp"]
+    },
+    "TSX": {
+      "language_servers": ["...", "meowter-lsp"]
+    },
+    "JavaScript": {
+      "language_servers": ["...", "meowter-lsp"]
+    }
+  }
+}
