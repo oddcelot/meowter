@@ -99,6 +99,11 @@ meowter-routes.d.ts
 .fallow/
 **/.fallow/
 
+# macOS
+.DS_Store
+**/.DS_Store
+
 # Rust / Zed extension build output
 extensions/zed/target/
 extensions/zed/Cargo.lock
+extensions/zed/extension.wasm
