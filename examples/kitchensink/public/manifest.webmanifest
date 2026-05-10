@@ -1,0 +1,13 @@
+{
+  "name": "meowter — kitchen sink",
+  "short_name": "meowter",
+  "description": "Tiny custom-element router built on @solidjs/signals.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#13171f",
+  "theme_color": "#efa53d",
+  "icons": [
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

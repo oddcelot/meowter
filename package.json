@@ -11,6 +11,15 @@
     "build:kitchensink": "pnpm --filter kitchensink build",
     "preview": "pnpm --filter kitchensink preview",
     "test": "pnpm --filter meowter test",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "favicons:gen": "node scripts/generate-favicons.ts"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
+  },
+  "devDependencies": {
+    "@profullstack/favicon-generator": "^1.1.4"
   }
 }
