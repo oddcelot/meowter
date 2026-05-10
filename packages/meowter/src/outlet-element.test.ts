@@ -4,20 +4,16 @@ import type { MeowRouter } from "./router-element.ts";
 import type { MeowRoute } from "./route-element.ts";
 import type { MeowOutlet } from "./outlet-element.ts";
 import type { RouteMatchDetail, RouteLeaveDetail } from "./events.ts";
+import { mountRouter, setURL, tick as flush } from "./test-helpers.ts";
 
-function setURL(path: string): void {
-  window.history.replaceState(null, "", path);
-}
+const mount = (html: string, attrs = ""): MeowRouter => mountRouter(html, attrs);
 
-function mount(html: string): MeowRouter {
-  document.body.innerHTML = `<meow-router>${html}</meow-router>`;
-  return document.body.firstElementChild as MeowRouter;
-}
-
-async function flush(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
-}
+const HOME_CATS_OUTLET = `
+      <meow-outlet>
+        <meow-route path="/">home</meow-route>
+        <meow-route path="/cats">cats</meow-route>
+      </meow-outlet>
+    `;
 
 function getRoute(root: ParentNode, path: string): MeowRoute {
   const r = root.querySelector<MeowRoute>(`meow-route[path="${path}"]`);
@@ -36,12 +32,7 @@ describe("MeowOutlet selection", () => {
 
   it("shows the matching top-level route, hides others", async () => {
     setURL("/cats");
-    const router = mount(`
-      <meow-outlet>
-        <meow-route path="/">home</meow-route>
-        <meow-route path="/cats">cats</meow-route>
-      </meow-outlet>
-    `);
+    const router = mount(HOME_CATS_OUTLET);
     await flush();
     expect(getRoute(router, "/").hidden).toBe(true);
     expect(getRoute(router, "/cats").hidden).toBe(false);
@@ -227,15 +218,7 @@ describe("MeowOutlet selection", () => {
 
   it("matches routes relative to router basepath", async () => {
     setURL("/x/cats");
-    document.body.innerHTML = `
-      <meow-router basepath="/x/">
-        <meow-outlet>
-          <meow-route path="/">home</meow-route>
-          <meow-route path="/cats">cats</meow-route>
-        </meow-outlet>
-      </meow-router>
-    `;
-    const router = document.body.firstElementChild as MeowRouter;
+    const router = mount(HOME_CATS_OUTLET, 'basepath="/x/"');
     await flush();
     expect(getRoute(router, "/").hidden).toBe(true);
     expect(getRoute(router, "/cats").hidden).toBe(false);
@@ -243,12 +226,7 @@ describe("MeowOutlet selection", () => {
 
   it("re-evaluates outlets when basepath is set after mount", async () => {
     setURL("/x/cats");
-    const router = mount(`
-      <meow-outlet>
-        <meow-route path="/">home</meow-route>
-        <meow-route path="/cats">cats</meow-route>
-      </meow-outlet>
-    `);
+    const router = mount(HOME_CATS_OUTLET);
     await flush();
     expect(getRoute(router, "/cats").hidden).toBe(true);
 

@@ -19,40 +19,6 @@ const sortSelect = document.querySelector<HTMLSelectElement>("#search-sort");
 const addTagBtn = document.querySelector<HTMLButtonElement>("#search-add-tag");
 const clearBtn = document.querySelector<HTMLButtonElement>("#search-clear");
 const searchReadout = document.querySelector<HTMLPreElement>("#search-readout");
-
-filterInput?.addEventListener("input", () => {
-  router.setSearchParam("filter", filterInput.value || null);
-});
-
-sortSelect?.addEventListener("change", () => {
-  router.setSearchParam("sort", sortSelect.value || null);
-});
-
-addTagBtn?.addEventListener("click", () => {
-  const existing = router.searchParams["tag"] ?? [];
-  const next = [...existing, `tag${existing.length + 1}`];
-  router.setSearchParam("tag", next);
-});
-
-clearBtn?.addEventListener("click", () => {
-  for (const key of Object.keys(router.searchParams)) {
-    router.setSearchParam(key, null);
-  }
-});
-
-document.querySelectorAll<HTMLButtonElement>("[data-action]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const action = btn.dataset["action"];
-    const href = btn.dataset["href"];
-    if (action === "navigate" && href) router.navigate(href);
-    else if (action === "replace" && href) router.replace(href);
-    else if (action === "navigate-state")
-      router.navigate("/about", { from: "demo" });
-    else if (action === "back") window.history.back();
-    else if (action === "forward") window.history.forward();
-  });
-});
-
 const debugContent = document.querySelector<HTMLElement>("#debug-content");
 const navLinks = Array.from(
   document.querySelectorAll<HTMLAnchorElement>("aside nav a[data-nav]"),
@@ -63,7 +29,47 @@ function pathOf(href: string): string {
   return u.pathname + u.search;
 }
 
-createRoot(() => {
+function stripBase(pathname: string, basepath: string): string {
+  if (basepath === "/" || !pathname.startsWith(basepath)) return pathname;
+  return "/" + pathname.slice(basepath.length);
+}
+
+function isActiveLink(stripped: string, pathname: string): boolean {
+  if (stripped === "/") return pathname === "/";
+  return pathname === stripped || pathname.startsWith(stripped + "/");
+}
+
+function wireSearchControls(r: MeowRouter): void {
+  filterInput?.addEventListener("input", () => {
+    r.setSearchParam("filter", filterInput.value || null);
+  });
+  sortSelect?.addEventListener("change", () => {
+    r.setSearchParam("sort", sortSelect.value || null);
+  });
+  addTagBtn?.addEventListener("click", () => {
+    const existing = r.searchParams["tag"] ?? [];
+    r.setSearchParam("tag", [...existing, `tag${existing.length + 1}`]);
+  });
+  clearBtn?.addEventListener("click", () => {
+    for (const key of Object.keys(r.searchParams)) r.setSearchParam(key, null);
+  });
+}
+
+function wireProgrammaticButtons(r: MeowRouter): void {
+  for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-action]")) {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset["action"];
+      const href = btn.dataset["href"];
+      if (action === "navigate" && href) r.navigate(href);
+      else if (action === "replace" && href) r.replace(href);
+      else if (action === "navigate-state") r.navigate("/about", { from: "demo" });
+      else if (action === "back") window.history.back();
+      else if (action === "forward") window.history.forward();
+    });
+  }
+}
+
+function bindParamSpans(): void {
   for (const route of document.querySelectorAll<MeowRoute>("meow-route")) {
     const targets = route.querySelectorAll<HTMLElement>("[data-param]");
     if (targets.length === 0) continue;
@@ -77,82 +83,95 @@ createRoot(() => {
       },
     );
   }
+}
 
-  const bp = router.basepath;
-  const linkPaths = navLinks.map((link) => {
-    const raw = link.pathname;
-    return bp !== "/" && raw.startsWith(bp) ? "/" + raw.slice(bp.length) : raw;
-  });
+function bindNavActiveState(r: MeowRouter): void {
+  const bp = r.basepath;
+  const linkPaths = navLinks.map((link) => stripBase(link.pathname, bp));
   createRenderEffect(
-    () => router.matchURL().pathname,
+    () => r.matchURL().pathname,
     (pathname) => {
       navLinks.forEach((link, i) => {
-        const stripped = linkPaths[i]!;
-        const isActive =
-          stripped === "/"
-            ? pathname === "/"
-            : pathname === stripped || pathname.startsWith(stripped + "/");
-        if (isActive) link.setAttribute("aria-current", "page");
-        else link.removeAttribute("aria-current");
+        if (isActiveLink(linkPaths[i]!, pathname)) {
+          link.setAttribute("aria-current", "page");
+        } else {
+          link.removeAttribute("aria-current");
+        }
       });
     },
   );
+}
 
+function bindSearchSync(r: MeowRouter): void {
   createRenderEffect(
-    () => router.searchParams.filter?.[0] ?? "",
+    () => r.searchParams.filter?.[0] ?? "",
     (filter) => {
       if (filterInput && filterInput.value !== filter) filterInput.value = filter;
     },
   );
-
   createRenderEffect(
-    () => router.searchParams.sort?.[0] ?? "",
+    () => r.searchParams.sort?.[0] ?? "",
     (sort) => {
       if (sortSelect && sortSelect.value !== sort) sortSelect.value = sort;
     },
   );
-
   createRenderEffect(
-    () => JSON.stringify(router.searchParams, null, 2),
+    () => JSON.stringify(r.searchParams, null, 2),
     (text) => {
       if (searchReadout) searchReadout.textContent = text === "{}" ? "(none)" : text;
     },
   );
+}
 
+interface DebugInfo {
+  url: string;
+  state: unknown;
+  historyIndex: number;
+  historyEntries: string[];
+}
+
+function renderDebugPanel(host: HTMLElement, info: DebugInfo): void {
+  host.innerHTML = "";
+  const dl = document.createElement("dl");
+  const rows: Array<[string, string]> = [
+    ["URL", info.url],
+    ["State", JSON.stringify(info.state)],
+    ["History", `${info.historyIndex + 1} / ${info.historyEntries.length}`],
+  ];
+  for (const [key, value] of rows) {
+    const dt = document.createElement("dt");
+    dt.textContent = key;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    dl.append(dt, dd);
+  }
+  host.append(dl);
+  const pre = document.createElement("pre");
+  pre.textContent =
+    info.historyEntries
+      .map((path, i) => `  ${i}: ${path}${i === info.historyIndex ? " ←" : ""}`)
+      .join("\n") || "(empty)";
+  host.append(pre);
+}
+
+function bindDebugPanel(r: MeowRouter, host: HTMLElement): void {
   createRenderEffect(
     () => ({
-      url: router.currentURL().pathname + router.currentURL().search,
-      state: router.currentState(),
-      historyIndex: router.history.index,
-      historyEntries: router.history.entries.map((e) => pathOf(e.href)),
-      searchParams: { ...router.searchParams },
+      url: r.currentURL().pathname + r.currentURL().search,
+      state: r.currentState(),
+      historyIndex: r.history.index,
+      historyEntries: r.history.entries.map((e) => pathOf(e.href)),
     }),
-    (info) => {
-      if (!debugContent) return;
-      const entriesList = info.historyEntries
-        .map((path, i) => {
-          const marker = i === info.historyIndex ? " ←" : "";
-          return `  ${i}: ${path}${marker}`;
-        })
-        .join("\n");
-      debugContent.innerHTML = "";
-      const dl = document.createElement("dl");
-      const rows: Array<[string, string]> = [
-        ["URL", info.url],
-        ["State", JSON.stringify(info.state)],
-        ["History", `${info.historyIndex + 1} / ${info.historyEntries.length}`],
-      ];
-      for (const [key, value] of rows) {
-        const dt = document.createElement("dt");
-        dt.textContent = key;
-        const dd = document.createElement("dd");
-        dd.textContent = value;
-        dl.append(dt, dd);
-      }
-      debugContent.append(dl);
-      const pre = document.createElement("pre");
-      pre.textContent = entriesList || "(empty)";
-      debugContent.append(pre);
-    },
+    (info) => renderDebugPanel(host, info),
   );
+}
+
+wireSearchControls(router);
+wireProgrammaticButtons(router);
+
+createRoot(() => {
+  bindParamSpans();
+  bindNavActiveState(router);
+  bindSearchSync(router);
+  if (debugContent) bindDebugPanel(router, debugContent);
 });

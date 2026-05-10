@@ -97,3 +97,4 @@ meowter-routes.d.ts
 
 # fallow
 **/.fallow/cache.bin
+**/.fallow/

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "usedClassMembers": [
+    {
+      "extends": "HTMLElement",
+      "members": [
+        "connectedCallback",
+        "disconnectedCallback",
+        "attributeChangedCallback",
+        "adoptedCallback",
+        "observedAttributes",
+        "currentURL",
+        "currentState",
+        "searchParams",
+        "history",
+        "matchURL",
+        "setSearchParam",
+        "matched",
+        "matchedAccessor",
+        "params",
+        "paramsAccessor",
+        "compiledPath",
+        "activate",
+        "deactivate",
+        "remainder",
+        "selectedRoute"
+      ]
+    }
+  ]
+}

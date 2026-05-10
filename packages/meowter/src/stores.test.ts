@@ -2,23 +2,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMemo, createRenderEffect, createRoot } from "@solidjs/signals";
 import "./index.ts";
 import type { MeowRouter } from "./router-element.ts";
+import { mountRouter, setURL, tick } from "./test-helpers.ts";
 
-function setURL(path: string): void {
-  window.history.replaceState(null, "", path);
-}
-
-function mount(html = ""): MeowRouter {
-  document.body.innerHTML = `<meow-router>${html}</meow-router>`;
-  return document.body.firstElementChild as MeowRouter;
-}
-
-async function tick(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
-}
+const mount = (html = ""): MeowRouter => mountRouter(html);
 
 function pathOf(href: string): string {
   return new URL(href, window.location.origin).pathname;
+}
+
+function popstateAs(id: number, path: string): void {
+  const wrapped = { __meowterHistoryId: id, user: null };
+  window.history.replaceState(wrapped, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate", { state: wrapped }));
 }
 
 describe("router.searchParams (derived store)", () => {
@@ -230,17 +225,7 @@ describe("router.history (reactive store)", () => {
     router.navigate("/b");
     expect(router.history.index).toBe(2);
 
-    const id0 = router.history.entries[0]!.id;
-    window.history.replaceState(
-      { __meowterHistoryId: id0, user: null },
-      "",
-      "/",
-    );
-    window.dispatchEvent(
-      new PopStateEvent("popstate", {
-        state: { __meowterHistoryId: id0, user: null },
-      }),
-    );
+    popstateAs(router.history.entries[0]!.id, "/");
 
     expect(router.history.index).toBe(0);
     expect(router.history.entries).toHaveLength(3);
@@ -251,17 +236,7 @@ describe("router.history (reactive store)", () => {
     router.navigate("/a");
     router.navigate("/b");
 
-    const id0 = router.history.entries[0]!.id;
-    window.history.replaceState(
-      { __meowterHistoryId: id0, user: null },
-      "",
-      "/",
-    );
-    window.dispatchEvent(
-      new PopStateEvent("popstate", {
-        state: { __meowterHistoryId: id0, user: null },
-      }),
-    );
+    popstateAs(router.history.entries[0]!.id, "/");
     expect(router.history.index).toBe(0);
 
     router.navigate("/c");

@@ -1,15 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./router-element.ts";
-import { MeowRouter, normalizeBasepath } from "./router-element.ts";
-
-function setURL(path: string): void {
-  window.history.replaceState(null, "", path);
-}
-
-function mountRouter(attrs: string = "", innerHTML: string = ""): MeowRouter {
-  document.body.innerHTML = `<meow-router ${attrs}>${innerHTML}</meow-router>`;
-  return document.body.firstElementChild as MeowRouter;
-}
+import { normalizeBasepath } from "./router-element.ts";
+import {
+  expectPushedPath,
+  lastPushedURL,
+  mountRouter,
+  setURL,
+  spyPushState,
+  spyReplaceState,
+} from "./test-helpers.ts";
 
 describe("normalizeBasepath", () => {
   it("returns '/' for empty/null/undefined/'/'", () => {
@@ -49,12 +48,12 @@ describe("MeowRouter basepath", () => {
   });
 
   it("reads basepath attribute on connect", () => {
-    const router = mountRouter('basepath="/x/"');
+    const router = mountRouter("", 'basepath="/x/"');
     expect(router.basepath).toBe("/x/");
   });
 
   it("normalizes basepath set via attribute", () => {
-    const router = mountRouter('basepath="meowter"');
+    const router = mountRouter("", 'basepath="meowter"');
     expect(router.basepath).toBe("/meowter/");
   });
 
@@ -66,19 +65,19 @@ describe("MeowRouter basepath", () => {
 
   it("matchURL strips basepath from pathname", () => {
     setURL("/x/cats");
-    const router = mountRouter('basepath="/x/"');
+    const router = mountRouter("", 'basepath="/x/"');
     expect(router.matchURL().pathname).toBe("/cats");
   });
 
   it("matchURL handles basepath without trailing slash in URL", () => {
     setURL("/x");
-    const router = mountRouter('basepath="/x/"');
+    const router = mountRouter("", 'basepath="/x/"');
     expect(router.matchURL().pathname).toBe("/");
   });
 
   it("matchURL leaves off-base URLs unchanged", () => {
     setURL("/wrong");
-    const router = mountRouter('basepath="/x/"');
+    const router = mountRouter("", 'basepath="/x/"');
     expect(router.matchURL().pathname).toBe("/wrong");
   });
 
@@ -90,56 +89,48 @@ describe("MeowRouter basepath", () => {
   });
 
   it("navigate('/cats') writes /x/cats to location", () => {
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
     router.navigate("/cats");
     expect(pushSpy).toHaveBeenCalledOnce();
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x/cats");
+    expectPushedPath(pushSpy, "/x/cats");
   });
 
   it("navigate('/x/cats') does not double-prefix", () => {
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
     router.navigate("/x/cats");
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x/cats");
+    expectPushedPath(pushSpy, "/x/cats");
   });
 
   it("navigate('/x') (no trailing slash) does not double-prefix", () => {
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
     router.navigate("/x");
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x");
+    expectPushedPath(pushSpy, "/x");
   });
 
   it("navigate does not double-prefix same-origin full URL", () => {
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
-    const target = `${window.location.origin}/x/cats`;
-    router.navigate(target);
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x/cats");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
+    router.navigate(`${window.location.origin}/x/cats`);
+    expectPushedPath(pushSpy, "/x/cats");
   });
 
   it("navigate prepends basepath for same-origin URL on root path", () => {
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
-    const target = `${window.location.origin}/cats`;
-    router.navigate(target);
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x/cats");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
+    router.navigate(`${window.location.origin}/cats`);
+    expectPushedPath(pushSpy, "/x/cats");
   });
 
   it("navigate leaves hash-only paths on current pathname", () => {
     setURL("/x/cats");
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
     router.navigate("#anchor");
-    const url = pushSpy.mock.calls[0]?.[2] as string | undefined;
-    if (url) {
-      const u = new URL(url, window.location.origin);
+    if (pushSpy.mock.calls.length > 0) {
+      const u = lastPushedURL(pushSpy);
       expect(u.pathname).toBe("/x/cats");
       expect(u.hash).toBe("#anchor");
     }
@@ -147,61 +138,54 @@ describe("MeowRouter basepath", () => {
 
   it("navigate leaves search-only paths on current pathname", () => {
     setURL("/x/cats");
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
     router.navigate("?q=1");
-    const url = pushSpy.mock.calls[0]?.[2] as string | undefined;
-    expect(url).toBeDefined();
-    const u = new URL(url!, window.location.origin);
+    const u = lastPushedURL(pushSpy);
     expect(u.pathname).toBe("/x/cats");
     expect(u.search).toBe("?q=1");
   });
 
   it("navigate resolves relative paths against current URL", () => {
     setURL("/x/cats/whiskers/");
-    const router = mountRouter('basepath="/x/"');
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const pushSpy = spyPushState();
     router.navigate("../mittens");
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x/cats/mittens");
+    expectPushedPath(pushSpy, "/x/cats/mittens");
   });
 
   it("basepath='/' is no-op for navigate", () => {
     const router = mountRouter();
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const pushSpy = spyPushState();
     router.navigate("/cats");
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/cats");
+    expectPushedPath(pushSpy, "/cats");
   });
 
   it("setSearchParam does not double-prefix", () => {
     setURL("/x/cats");
-    const router = mountRouter('basepath="/x/"');
-    const replaceSpy = vi.spyOn(window.history, "replaceState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const replaceSpy = spyReplaceState();
     router.setSearchParam("filter", "tabby");
-    const url = replaceSpy.mock.calls.at(-1)![2] as string;
-    const parsed = new URL(url, window.location.origin);
+    const parsed = lastPushedURL(replaceSpy);
     expect(parsed.pathname).toBe("/x/cats");
     expect(parsed.searchParams.get("filter")).toBe("tabby");
   });
 
   it("replace prepends basepath", () => {
-    const router = mountRouter('basepath="/x/"');
-    const replaceSpy = vi.spyOn(window.history, "replaceState");
+    const router = mountRouter("", 'basepath="/x/"');
+    const replaceSpy = spyReplaceState();
     router.replace("/cats");
-    const url = replaceSpy.mock.calls.at(-1)![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x/cats");
+    expectPushedPath(replaceSpy, "/x/cats");
   });
 
   it("intercepted anchor click writes prefixed URL", () => {
-    const router = mountRouter('basepath="/x/"', '<a href="/cats" id="lnk">Cats</a>');
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter('<a href="/cats" id="lnk">Cats</a>', 'basepath="/x/"');
+    const pushSpy = spyPushState();
     const anchor = router.querySelector<HTMLAnchorElement>("#lnk")!;
     anchor.dispatchEvent(
       new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }),
     );
     expect(pushSpy).toHaveBeenCalledOnce();
-    const url = pushSpy.mock.calls[0]![2] as string;
-    expect(new URL(url, window.location.origin).pathname).toBe("/x/cats");
+    expectPushedPath(pushSpy, "/x/cats");
   });
 });

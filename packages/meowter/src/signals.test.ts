@@ -4,20 +4,9 @@ import "./index.ts";
 import type { MeowRouter } from "./router-element.ts";
 import type { MeowOutlet } from "./outlet-element.ts";
 import type { MeowRoute } from "./route-element.ts";
+import { mountRouter, setURL, tick } from "./test-helpers.ts";
 
-function setURL(path: string): void {
-  window.history.replaceState(null, "", path);
-}
-
-function mount(html: string): MeowRouter {
-  document.body.innerHTML = `<meow-router>${html}</meow-router>`;
-  return document.body.firstElementChild as MeowRouter;
-}
-
-async function tick(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
-}
+const mount = (html: string): MeowRouter => mountRouter(html);
 
 describe("reactive surface (Solid signals)", () => {
   beforeEach(() => {
