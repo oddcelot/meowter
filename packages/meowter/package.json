@@ -63,12 +63,13 @@
     "node": ">=26"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.58.7",
     "@solidjs/signals": "^2.0.0-beta.10",
     "@types/node": "^25.0.0",
     "happy-dom": "^20.0.0",
-    "typescript": "^5.6.0",
+    "typescript": "^6.0.3",
     "vite": "^8.0.0",
-    "vite-plugin-dts": "^4.0.0",
+    "vite-plugin-dts": "^5.0.0",
     "vitest": "^4.0.0"
   },
   "dependencies": {
