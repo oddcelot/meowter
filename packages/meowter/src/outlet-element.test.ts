@@ -225,6 +225,39 @@ describe("MeowOutlet selection", () => {
     expect(leaves).toHaveLength(1);
   });
 
+  it("matches routes relative to router basepath", async () => {
+    setURL("/x/cats");
+    document.body.innerHTML = `
+      <meow-router basepath="/x/">
+        <meow-outlet>
+          <meow-route path="/">home</meow-route>
+          <meow-route path="/cats">cats</meow-route>
+        </meow-outlet>
+      </meow-router>
+    `;
+    const router = document.body.firstElementChild as MeowRouter;
+    await flush();
+    expect(getRoute(router, "/").hidden).toBe(true);
+    expect(getRoute(router, "/cats").hidden).toBe(false);
+  });
+
+  it("re-evaluates outlets when basepath is set after mount", async () => {
+    setURL("/x/cats");
+    const router = mount(`
+      <meow-outlet>
+        <meow-route path="/">home</meow-route>
+        <meow-route path="/cats">cats</meow-route>
+      </meow-outlet>
+    `);
+    await flush();
+    expect(getRoute(router, "/cats").hidden).toBe(true);
+
+    router.basepath = "/x/";
+    await flush();
+    expect(getRoute(router, "/cats").hidden).toBe(false);
+    expect(getRoute(router, "/").hidden).toBe(true);
+  });
+
   it("removes its listener on disconnect", async () => {
     setURL("/cats");
     const router = mount(`

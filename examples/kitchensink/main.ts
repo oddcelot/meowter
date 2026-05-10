@@ -7,14 +7,12 @@ import "meowter";
 import type { MeowRoute, MeowRouter } from "meowter";
 import logoUrl from "../../meowter-logo.svg?url";
 
-const BASE = import.meta.env.BASE_URL;
-
 const logoEl = document.querySelector<HTMLImageElement>("#meowter-logo");
 if (logoEl) logoEl.src = logoUrl;
 
 const router = document.querySelector<MeowRouter>("meow-router");
 if (!router) throw new Error("kitchen sink: meow-router missing");
-
+router.basepath = import.meta.env.BASE_URL;
 
 const filterInput = document.querySelector<HTMLInputElement>("#search-filter");
 const sortSelect = document.querySelector<HTMLSelectElement>("#search-sort");
@@ -49,7 +47,7 @@ document.querySelectorAll<HTMLButtonElement>("[data-action]").forEach((btn) => {
     if (action === "navigate" && href) router.navigate(href);
     else if (action === "replace" && href) router.replace(href);
     else if (action === "navigate-state")
-      router.navigate(`${BASE}about`, { from: "demo" });
+      router.navigate("/about", { from: "demo" });
     else if (action === "back") window.history.back();
     else if (action === "forward") window.history.forward();
   });
@@ -80,22 +78,23 @@ createRoot(() => {
     );
   }
 
-  const HOME_PATH = BASE;
+  const bp = router.basepath;
+  const linkPaths = navLinks.map((link) => {
+    const raw = link.pathname;
+    return bp !== "/" && raw.startsWith(bp) ? "/" + raw.slice(bp.length) : raw;
+  });
   createRenderEffect(
-    () => router.currentURL().pathname,
+    () => router.matchURL().pathname,
     (pathname) => {
-      const normalizedPath = pathname.endsWith("/") ? pathname : pathname + "/";
-      for (const link of navLinks) {
-        const linkPath = link.pathname.endsWith("/")
-          ? link.pathname
-          : link.pathname + "/";
+      navLinks.forEach((link, i) => {
+        const stripped = linkPaths[i]!;
         const isActive =
-          linkPath === HOME_PATH
-            ? normalizedPath === HOME_PATH
-            : normalizedPath.startsWith(linkPath);
+          stripped === "/"
+            ? pathname === "/"
+            : pathname === stripped || pathname.startsWith(stripped + "/");
         if (isActive) link.setAttribute("aria-current", "page");
         else link.removeAttribute("aria-current");
-      }
+      });
     },
   );
 

@@ -1,0 +1,11 @@
+{
+  "lsp": {
+    "vscode-html-language-server": {
+      "settings": {
+        "html": {
+          "customData": ["./packages/meowter/meowter.html-data.json"]
+        }
+      }
+    }
+  }
+}

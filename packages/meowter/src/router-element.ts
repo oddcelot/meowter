@@ -49,16 +49,36 @@ function paramsFromURL(url: URL): Record<string, string[]> {
   return result;
 }
 
+export function normalizeBasepath(input: string | null | undefined): string {
+  if (!input) return "/";
+  let s = input.trim();
+  if (!s) return "/";
+  if (!s.startsWith("/")) s = "/" + s;
+  if (!s.endsWith("/")) s = s + "/";
+  return s.replace(/\/{2,}/g, "/");
+}
+
+function stripBasepath(pathname: string, basepath: string): string {
+  if (basepath === "/") return pathname;
+  const noTrail = basepath.slice(0, -1);
+  if (pathname === noTrail) return "/";
+  if (pathname.startsWith(basepath)) return "/" + pathname.slice(basepath.length);
+  return pathname;
+}
+
 const INITIAL_URL = new URL(
   typeof window !== "undefined" ? window.location.href : "http://localhost/",
 );
 
 export class MeowRouter extends HTMLElement {
+  static observedAttributes = ["basepath"];
+
   #url = createSignal<URL>(INITIAL_URL, {
     ownedWrite: true,
     equals: (a, b) => a.href === b.href,
   });
   #state = createSignal<unknown>(null, { ownedWrite: true });
+  #basepath = createSignal<string>("/", { ownedWrite: true });
   #nextHistoryId = 0;
   #history = createStore<HistoryState>({ entries: [], index: -1 });
   #searchParams = createStore<Record<string, string[]>>(
@@ -80,6 +100,56 @@ export class MeowRouter extends HTMLElement {
 
   get history(): HistoryState {
     return this.#history[0];
+  }
+
+  get basepath(): string {
+    return this.#basepath[0]();
+  }
+
+  set basepath(v: string) {
+    const next = normalizeBasepath(v);
+    if (next === this.#basepath[0]()) return;
+    this.#basepath[1](next);
+    flush();
+  }
+
+  matchURL: Accessor<URL> = () => {
+    const url = this.#url[0]();
+    const bp = this.#basepath[0]();
+    if (bp === "/") return url;
+    const stripped = stripBasepath(url.pathname, bp);
+    if (stripped === url.pathname) return url;
+    const out = new URL(url.href);
+    out.pathname = stripped;
+    return out;
+  };
+
+  attributeChangedCallback(
+    name: string,
+    _oldValue: string | null,
+    newValue: string | null,
+  ): void {
+    if (name === "basepath") {
+      this.basepath = newValue ?? "/";
+    }
+  }
+
+  #prependBasepath(href: string): string {
+    const bp = this.#basepath[0]();
+    if (bp === "/") return href;
+    if (href.startsWith("#") || href.startsWith("?")) return href;
+
+    let url: URL;
+    try {
+      url = new URL(href, window.location.href);
+    } catch {
+      return href;
+    }
+    if (url.origin !== window.location.origin) return href;
+    const noTrail = bp.slice(0, -1);
+    if (url.pathname === noTrail || url.pathname.startsWith(bp)) return url.href;
+    url.pathname = bp + url.pathname.replace(/^\//, "");
+    return url.href;
   }
 
   #onClick = (event: MouseEvent): void => {
@@ -141,7 +211,7 @@ export class MeowRouter extends HTMLElement {
   }
 
   navigate(href: string, state?: unknown): void {
-    const url = new URL(href, window.location.href);
+    const url = new URL(this.#prependBasepath(href), window.location.href);
     const current =
       window.location.pathname + window.location.search + window.location.hash;
     const next = url.pathname + url.search + url.hash;
@@ -166,7 +236,7 @@ export class MeowRouter extends HTMLElement {
   }
 
   replace(href: string, state?: unknown): void {
-    const url = new URL(href, window.location.href);
+    const url = new URL(this.#prependBasepath(href), window.location.href);
     const id = this.#nextHistoryId++;
     window.history.replaceState(wrap(id, state ?? null), "", url.href);
 

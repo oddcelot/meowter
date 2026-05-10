@@ -6,22 +6,6 @@ import { meowterRoutes } from "meowter/vite-plugin";
 
 const PUBLIC_BASE = process.env["PUBLIC_BASE"];
 
-const htmlBaseToken = (): Plugin => {
-  let base = "/";
-  return {
-    name: "html-base-token",
-    configResolved(config) {
-      base = config.base;
-    },
-    transformIndexHtml: {
-      order: "pre",
-      handler(html) {
-        return html.replace(/\{\{BASE\}\}/g, base);
-      },
-    },
-  };
-};
-
 const spaFallback404 = (): Plugin => {
   let outDir = "dist";
   return {
@@ -39,5 +23,5 @@ const spaFallback404 = (): Plugin => {
 
 export default defineConfig({
   base: PUBLIC_BASE ?? "/",
-  plugins: [htmlBaseToken(), spaFallback404(), meowterRoutes()],
+  plugins: [spaFallback404(), meowterRoutes()],
 });
