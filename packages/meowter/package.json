@@ -10,9 +10,25 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./codegen": {
+      "types": "./src/codegen/index.ts",
+      "default": "./src/codegen/index.ts"
+    },
+    "./vite-plugin": {
+      "types": "./src/codegen/vite-plugin.ts",
+      "default": "./src/codegen/vite-plugin.ts"
     }
   },
-  "files": ["dist", "src", "README.md"],
+  "bin": {
+    "meowter-routes": "./src/codegen/cli.ts"
+  },
+  "files": [
+    "dist",
+    "src",
+    "meowter.html-data.json",
+    "README.md"
+  ],
   "scripts": {
     "build": "vite build",
     "test": "vitest run",
@@ -26,19 +42,38 @@
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/meowter.js"
+      },
+      "./codegen": {
+        "types": "./dist/codegen.d.ts",
+        "import": "./dist/codegen.js"
+      },
+      "./vite-plugin": {
+        "types": "./dist/vite-plugin.d.ts",
+        "import": "./dist/vite-plugin.js"
       }
+    },
+    "bin": {
+      "meowter-routes": "./dist/cli.js"
     }
   },
   "peerDependencies": {
     "@solidjs/signals": "^2.0.0-beta.10"
   },
+  "engines": {
+    "node": ">=26"
+  },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.58.7",
     "@solidjs/signals": "^2.0.0-beta.10",
-    "@types/node": "^22.0.0",
+    "@types/node": "^25.0.0",
     "happy-dom": "^20.0.0",
-    "typescript": "^5.6.0",
+    "typescript": "^6.0.3",
     "vite": "^8.0.0",
-    "vite-plugin-dts": "^4.0.0",
+    "vite-plugin-dts": "^5.0.0",
     "vitest": "^4.0.0"
+  },
+  "dependencies": {
+    "node-html-parser": "^7.1.0",
+    "tinyglobby": "^0.2.16"
   }
 }

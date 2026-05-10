@@ -1,0 +1,50 @@
+{
+  "version": 1.1,
+  "tags": [
+    {
+      "name": "meow-router",
+      "description": {
+        "kind": "markdown",
+        "value": "Top-level router element. Owns the URL signal, intercepts in-app anchor clicks, and exposes `navigate` / `replace` / `setSearchParam` programmatic APIs."
+      },
+      "attributes": [
+        {
+          "name": "basepath",
+          "description": {
+            "kind": "markdown",
+            "value": "URL prefix the app is served under (e.g. `/meowter/` for GitHub Pages). Stripped before route matching, prepended when writing the URL bar. Defaults to `/`. Usually wired at runtime via `router.basepath = import.meta.env.BASE_URL`."
+          }
+        }
+      ],
+      "references": [
+        {
+          "name": "Source",
+          "url": "https://github.com/oddcelot/meowter/blob/main/packages/meowter/src/router-element.ts"
+        }
+      ]
+    },
+    {
+      "name": "meow-route",
+      "description": {
+        "kind": "markdown",
+        "value": "Declares a route pattern. Matched against the router's pathname (basepath-stripped). Empty `path` is the index route; `*` is the catch-all. `:param` segments are exposed via `route.params`."
+      },
+      "attributes": [
+        {
+          "name": "path",
+          "description": {
+            "kind": "markdown",
+            "value": "Route pattern. Examples: `/`, `/cats`, `/cats/:id`, `` (index inside a parent), `*` (catch-all)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "meow-outlet",
+      "description": {
+        "kind": "markdown",
+        "value": "Renders the matching `<meow-route>` from its direct children, hiding the rest. Nest outlets inside routes for multi-level matching; inner outlets receive the parent's path remainder."
+      }
+    }
+  ]
+}

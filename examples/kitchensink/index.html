@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>meowter — kitchen sink</title>
+
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%icons/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="%BASE_URL%icons/favicon.ico" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/apple-touch-icon.png" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <meta name="theme-color" content="#efa53d" />
   </head>
   <body>
     <meow-router>
@@ -19,12 +25,12 @@
 
           <nav aria-label="Primary">
             <ul>
-              <li><a href="{{BASE}}" data-nav>Home</a></li>
-              <li><a href="{{BASE}}cats" data-nav>Cats</a></li>
-              <li><a href="{{BASE}}dogs" data-nav>Dogs</a></li>
-              <li><a href="{{BASE}}search" data-nav>Search params</a></li>
-              <li><a href="{{BASE}}programmatic" data-nav>Programmatic</a></li>
-              <li><a href="{{BASE}}about" data-nav>About</a></li>
+              <li><a href="/" data-nav>Home</a></li>
+              <li><a href="/cats" data-nav>Cats</a></li>
+              <li><a href="/dogs" data-nav>Dogs</a></li>
+              <li><a href="/search" data-nav>Search params</a></li>
+              <li><a href="/programmatic" data-nav>Programmatic</a></li>
+              <li><a href="/about" data-nav>About</a></li>
             </ul>
           </nav>
 
@@ -36,7 +42,7 @@
 
         <main class="container">
           <meow-outlet>
-            <meow-route path="{{BASE}}">
+            <meow-route path="/">
               <article>
                 <header><h1>Home</h1></header>
                 <p>
@@ -58,17 +64,17 @@
               </article>
             </meow-route>
 
-            <meow-route path="{{BASE}}cats">
+            <meow-route path="/cats">
               <article>
                 <header>
                   <h1>Cats</h1>
                   <nav>
                     <ul>
-                      <li><a href="{{BASE}}cats">All</a></li>
-                      <li><a href="{{BASE}}cats/new">New</a></li>
-                      <li><a href="{{BASE}}cats/whiskers">Whiskers</a></li>
-                      <li><a href="{{BASE}}cats/mittens">Mittens</a></li>
-                      <li><a href="{{BASE}}cats/biscuit">Biscuit</a></li>
+                      <li><a href="/cats">All</a></li>
+                      <li><a href="/cats/new">New</a></li>
+                      <li><a href="/cats/whiskers">Whiskers</a></li>
+                      <li><a href="/cats/mittens">Mittens</a></li>
+                      <li><a href="/cats/biscuit">Biscuit</a></li>
                     </ul>
                   </nav>
                 </header>
@@ -129,7 +135,7 @@
               </article>
             </meow-route>
 
-            <meow-route path="{{BASE}}dogs">
+            <meow-route path="/dogs">
               <article>
                 <header><h1>Dogs</h1></header>
                 <p>Wrong house.</p>
@@ -142,7 +148,7 @@
               </article>
             </meow-route>
 
-            <meow-route path="{{BASE}}search">
+            <meow-route path="/search">
               <article>
                 <header><h1>Search params</h1></header>
                 <p>
@@ -179,14 +185,14 @@
               </article>
             </meow-route>
 
-            <meow-route path="{{BASE}}programmatic">
+            <meow-route path="/programmatic">
               <article>
                 <header><h1>Programmatic</h1></header>
                 <p>Buttons that call router methods directly:</p>
                 <div class="grid">
-                  <button data-action="navigate" data-href="{{BASE}}">navigate(/)</button>
-                  <button data-action="navigate" data-href="{{BASE}}cats/whiskers">navigate(/cats/whiskers)</button>
-                  <button data-action="replace" data-href="{{BASE}}cats/mittens">replace(/cats/mittens)</button>
+                  <button data-action="navigate" data-href="/">navigate(/)</button>
+                  <button data-action="navigate" data-href="/cats/whiskers">navigate(/cats/whiskers)</button>
+                  <button data-action="replace" data-href="/cats/mittens">replace(/cats/mittens)</button>
                   <button data-action="navigate-state">navigate(/about, &#123;from:"demo"&#125;)</button>
                 </div>
                 <div class="grid">
@@ -196,7 +202,7 @@
               </article>
             </meow-route>
 
-            <meow-route path="{{BASE}}about">
+            <meow-route path="/about">
               <article>
                 <header><h1>About</h1></header>
                 <p>
@@ -217,7 +223,7 @@
               <article>
                 <header><h1>404</h1></header>
                 <p>Nothing here — the catch-all route matched.</p>
-                <p><a href="{{BASE}}">Back home</a></p>
+                <p><a href="/">Back home</a></p>
               </article>
             </meow-route>
           </meow-outlet>

@@ -1,36 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./router-element.ts";
-import type { MeowRouter } from "./router-element.ts";
-import type { RouteChangeDetail } from "./events.ts";
-
-function clickEvent(extra: MouseEventInit = {}): MouseEvent {
-  return new MouseEvent("click", {
-    bubbles: true,
-    cancelable: true,
-    composed: true,
-    button: 0,
-    ...extra,
-  });
-}
-
-function mountRouter(innerHTML: string): MeowRouter {
-  const router = document.createElement("meow-router");
-  router.innerHTML = innerHTML;
-  document.body.append(router);
-  return router;
-}
-
-function captureRoute(router: MeowRouter): {
-  events: CustomEvent<RouteChangeDetail>[];
-} {
-  const events: CustomEvent<RouteChangeDetail>[] = [];
-  router.addEventListener("route-change", (e) => events.push(e));
-  return { events };
-}
+import {
+  captureRouteEvents,
+  dispatchAnchorClick,
+  expectIntercepted,
+  expectNotIntercepted,
+  mountRouter,
+  setURL,
+  spyPushState,
+} from "./test-helpers.ts";
 
 describe("MeowRouter", () => {
   beforeEach(() => {
-    window.history.replaceState(null, "", "/");
+    setURL("/");
   });
 
   afterEach(() => {
@@ -40,94 +22,68 @@ describe("MeowRouter", () => {
 
   it("intercepts internal anchor clicks and pushes history", () => {
     const router = mountRouter('<a href="/foo" id="lnk">Foo</a>');
-    const { events } = captureRoute(router);
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const events = captureRouteEvents(router);
+    const pushSpy = spyPushState();
 
-    const anchor = router.querySelector<HTMLAnchorElement>("#lnk")!;
-    const event = clickEvent();
-    anchor.dispatchEvent(event);
+    const event = dispatchAnchorClick(router, "#lnk");
 
-    expect(event.defaultPrevented).toBe(true);
-    expect(pushSpy).toHaveBeenCalledOnce();
-    expect(events).toHaveLength(1);
-    expect(events[0]!.detail.url.pathname).toBe("/foo");
+    expectIntercepted(event, pushSpy, events, "/foo");
   });
 
   it("ignores clicks with modifier keys", () => {
     const router = mountRouter('<a href="/foo" id="lnk">Foo</a>');
-    const { events } = captureRoute(router);
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const events = captureRouteEvents(router);
+    const pushSpy = spyPushState();
 
-    const anchor = router.querySelector<HTMLAnchorElement>("#lnk")!;
-    const event = clickEvent({ metaKey: true });
-    anchor.dispatchEvent(event);
+    const event = dispatchAnchorClick(router, "#lnk", { metaKey: true });
 
-    expect(event.defaultPrevented).toBe(false);
-    expect(pushSpy).not.toHaveBeenCalled();
-    expect(events).toHaveLength(0);
+    expectNotIntercepted(event, pushSpy, events);
   });
 
   it("ignores external origin links", () => {
     const router = mountRouter('<a href="https://example.com/x" id="lnk">Ext</a>');
-    const { events } = captureRoute(router);
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const events = captureRouteEvents(router);
+    const pushSpy = spyPushState();
 
-    const anchor = router.querySelector<HTMLAnchorElement>("#lnk")!;
-    const event = clickEvent();
-    anchor.dispatchEvent(event);
+    const event = dispatchAnchorClick(router, "#lnk");
 
-    expect(event.defaultPrevented).toBe(false);
-    expect(pushSpy).not.toHaveBeenCalled();
-    expect(events).toHaveLength(0);
+    expectNotIntercepted(event, pushSpy, events);
   });
 
   it("ignores anchors with target other than _self", () => {
     const router = mountRouter('<a href="/x" target="_blank" id="lnk">New</a>');
-    const { events } = captureRoute(router);
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const events = captureRouteEvents(router);
+    const pushSpy = spyPushState();
 
-    const anchor = router.querySelector<HTMLAnchorElement>("#lnk")!;
-    const event = clickEvent();
-    anchor.dispatchEvent(event);
+    const event = dispatchAnchorClick(router, "#lnk");
 
-    expect(event.defaultPrevented).toBe(false);
-    expect(pushSpy).not.toHaveBeenCalled();
-    expect(events).toHaveLength(0);
+    expectNotIntercepted(event, pushSpy, events);
   });
 
   it("ignores download anchors", () => {
     const router = mountRouter('<a href="/x" download id="lnk">DL</a>');
-    const { events } = captureRoute(router);
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const events = captureRouteEvents(router);
+    const pushSpy = spyPushState();
 
-    const anchor = router.querySelector<HTMLAnchorElement>("#lnk")!;
-    const event = clickEvent();
-    anchor.dispatchEvent(event);
+    const event = dispatchAnchorClick(router, "#lnk");
 
-    expect(event.defaultPrevented).toBe(false);
-    expect(pushSpy).not.toHaveBeenCalled();
-    expect(events).toHaveLength(0);
+    expectNotIntercepted(event, pushSpy, events);
   });
 
   it("intercepts clicks on elements nested inside anchors", () => {
     const router = mountRouter('<a href="/foo" id="lnk"><span id="inner">Foo</span></a>');
-    const { events } = captureRoute(router);
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const events = captureRouteEvents(router);
+    const pushSpy = spyPushState();
 
-    const inner = router.querySelector<HTMLElement>("#inner")!;
-    const event = clickEvent();
-    inner.dispatchEvent(event);
+    const event = dispatchAnchorClick(router, "#inner");
 
-    expect(event.defaultPrevented).toBe(true);
-    expect(pushSpy).toHaveBeenCalledOnce();
-    expect(events).toHaveLength(1);
-    expect(events[0]!.detail.url.pathname).toBe("/foo");
+    expectIntercepted(event, pushSpy, events, "/foo");
   });
 
   it("supports programmatic navigate()", () => {
-    const router = mountRouter("");
-    const { events } = captureRoute(router);
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter();
+    const events = captureRouteEvents(router);
+    const pushSpy = spyPushState();
 
     router.navigate("/bar", { from: "test" });
 
@@ -138,8 +94,8 @@ describe("MeowRouter", () => {
   });
 
   it("does not push duplicate history entries for same URL", () => {
-    const router = mountRouter("");
-    const pushSpy = vi.spyOn(window.history, "pushState");
+    const router = mountRouter();
+    const pushSpy = spyPushState();
 
     router.navigate("/same");
     router.navigate("/same");
@@ -148,8 +104,8 @@ describe("MeowRouter", () => {
   });
 
   it("emits route-change on popstate", () => {
-    const router = mountRouter("");
-    const { events } = captureRoute(router);
+    const router = mountRouter();
+    const events = captureRouteEvents(router);
 
     window.history.pushState({ k: 1 }, "", "/popped");
     window.dispatchEvent(new PopStateEvent("popstate", { state: { k: 1 } }));

@@ -6,7 +6,7 @@ export interface RouteCandidate {
   hasNestedOutlet: boolean;
 }
 
-export interface SelectResult<T extends RouteCandidate> {
+interface SelectResult<T extends RouteCandidate> {
   route: T;
   consumed: string;
   params: Record<string, string>;
