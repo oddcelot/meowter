@@ -1,0 +1,27 @@
+{
+  "name": "lit-kitchensink",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/lilex": "^5.2.1",
+    "@picocss/pico": "^2.1.1",
+    "@solidjs/signals": "^2.0.0-beta.10",
+    "lit": "^3.3.2",
+    "meowter": "workspace:*"
+  },
+  "engines": {
+    "node": ">=26"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12"
+  }
+}
