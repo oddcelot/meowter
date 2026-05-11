@@ -12,6 +12,9 @@ import { MeowRouter } from "./router-element.ts";
 const NULL_REMAINDER: Accessor<string> = () => "";
 const NULL_SELECTED: Accessor<MeowRoute | null> = () => null;
 
+/**
+ * @customElement meow-outlet
+ */
 export class MeowOutlet extends HTMLElement {
   remainder: Accessor<string> = NULL_REMAINDER;
   selectedRoute: Accessor<MeowRoute | null> = NULL_SELECTED;

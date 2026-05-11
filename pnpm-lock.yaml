@@ -11,6 +11,9 @@ importers:
       '@profullstack/favicon-generator':
         specifier: ^1.1.4
         version: 1.1.4
+      '@pwrs/cem':
+        specifier: ^0.10.4
+        version: 0.10.4
       '@types/node':
         specifier: ^25.0.0
         version: 25.6.2
@@ -454,6 +457,41 @@ packages:
   '@profullstack/favicon-generator@1.1.4':
     resolution: {integrity: sha512-94GFhuTDcZHdEsd17buuRcdaiwg8jf9oVTOhp2j4eArr9t+aF+W34RqgrHh1F6YWMNXQH5T+9skx0UGnkEP75A==}
     engines: {node: '>=20.0.0'}
+    hasBin: true
+
+  '@pwrs/cem-darwin-arm64@0.10.4':
+    resolution: {integrity: sha512-OUTRJwAZbmo9IEYo7gEODf5QgG3jWqroFa57OzTc6ANULJFEQzXB1bGSCmR0on75ciK80m9FR0vjHzaUDStlyQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@pwrs/cem-darwin-x64@0.10.4':
+    resolution: {integrity: sha512-Sh2x/7wEdPLdcrniRTjH5BLbB74aCef7WYY2bnGlmMYRvSUJvwUhzP5H6dYERePBDNHgL3vcx6aj/ShV6YQvVA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@pwrs/cem-linux-arm64@0.10.4':
+    resolution: {integrity: sha512-rGVWI4o63h5DSMBofJI/31UwGtB9Jo4Rt2+LDB99ckTJDHegkOeuE0VXHLtx+uV08udNyFp3Cpml4WoDIy3cIQ==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@pwrs/cem-linux-x64@0.10.4':
+    resolution: {integrity: sha512-wtXNm+/sXyqCJ7j9pMGO7VZ7LCo2W5b5nAz/vE1dW5Ejc/uDmne8wDrqikI87EgrxbSKOY+UfYeCnMKCOQlV3Q==}
+    cpu: [x64]
+    os: [linux]
+
+  '@pwrs/cem-win32-arm64@0.10.4':
+    resolution: {integrity: sha512-nsL+LG1YhhCnoTAuhOcnwU9raEfv4B0M9LzlcRT064A3gQvshD/U50P4Nn3nJS39YIV+TrJaftqopKnIPt9hJQ==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@pwrs/cem-win32-x64@0.10.4':
+    resolution: {integrity: sha512-LpIGvu2OqmbPBY2Dux3npbv9N8EPwGIxOdwFeizEOFHBf2N/jLtNFDLoS/28MbIJU5zWrhh5w1ETJCRx4V8sIw==}
+    cpu: [x64]
+    os: [win32]
+
+  '@pwrs/cem@0.10.4':
+    resolution: {integrity: sha512-bvG7eg+YwAhUZBt/Yff8sGirAhaxIZ63IMytvynzj47cTHbM6Uka5ySVsoyATLBvNaHLQhb3Uz7APijK5qvqiw==}
+    engines: {node: '>=22.0.0'}
     hasBin: true
 
   '@rolldown/binding-android-arm64@1.0.0':
@@ -1794,6 +1832,33 @@ snapshots:
     dependencies:
       inquirer: 10.2.2
       sharp: 0.33.5
+
+  '@pwrs/cem-darwin-arm64@0.10.4':
+    optional: true
+
+  '@pwrs/cem-darwin-x64@0.10.4':
+    optional: true
+
+  '@pwrs/cem-linux-arm64@0.10.4':
+    optional: true
+
+  '@pwrs/cem-linux-x64@0.10.4':
+    optional: true
+
+  '@pwrs/cem-win32-arm64@0.10.4':
+    optional: true
+
+  '@pwrs/cem-win32-x64@0.10.4':
+    optional: true
+
+  '@pwrs/cem@0.10.4':
+    optionalDependencies:
+      '@pwrs/cem-darwin-arm64': 0.10.4
+      '@pwrs/cem-darwin-x64': 0.10.4
+      '@pwrs/cem-linux-arm64': 0.10.4
+      '@pwrs/cem-linux-x64': 0.10.4
+      '@pwrs/cem-win32-arm64': 0.10.4
+      '@pwrs/cem-win32-x64': 0.10.4
 
   '@rolldown/binding-android-arm64@1.0.0':
     optional: true

@@ -5,6 +5,9 @@ import { compilePath } from "./path-compile.ts";
 
 type ParamsRecord = Record<string, string>;
 
+/**
+ * @customElement meow-route
+ */
 export class MeowRoute extends HTMLElement {
   #matched = createSignal<boolean>(false, { ownedWrite: true });
   #params = createSignal<ParamsRecord | null>(null, { ownedWrite: true });

@@ -97,6 +97,11 @@ export function createLink(router: Router<AnyRoute>, opts: any): LinkHandle {
  *
  * When the link's target path matches the current location, the rendered
  * `<a>` carries `aria-current="page"` and `data-status="active"`.
+ *
+ * @customElement meow-link
+ * @attr {string} to    Target path string, or a `Route` value via the `.to` property.
+ * @attr replace        Use `router.replace()` instead of `router.navigate()` on click.
+ * @attr exact          Only mark active when the current pathname matches exactly.
  */
 export class MeowLink extends HTMLElement {
   static observedAttributes = ["to", "replace", "exact"];

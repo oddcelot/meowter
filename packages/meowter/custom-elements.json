@@ -1,0 +1,497 @@
+{
+  "schemaVersion": "2.1.0",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/link.js",
+      "declarations": [
+        {
+          "parameters": [
+            {
+              "name": "router",
+              "type": {
+                "text": "Router\u003cAnyRoute\u003e"
+              }
+            }
+          ],
+          "name": "createLink",
+          "description": "Build a typed link handle for a route or path. The returned `href` and\n`onClick` can be spread onto any `\u003ca\u003e` element to get type-safe, intercepted\nnavigation with the same active-state semantics as a built-in router link.",
+          "kind": "function"
+        },
+        {
+          "parameters": [
+            {
+              "name": "router",
+              "type": {
+                "text": "Router\u003cTree\u003e"
+              }
+            }
+          ],
+          "name": "createLink",
+          "kind": "function"
+        },
+        {
+          "name": "MeowLink",
+          "description": "Custom element that renders a typed link as an `\u003ca\u003e` and intercepts clicks\nthrough the closest ancestor `\u003cmeow-router\u003e`. Set the target via the `to`\nattribute (path string), or via the `.to` property (Route value or string),\nwith optional `.params` / `.search` / `.hash` properties.\n\nWhen the link's target path matches the current location, the rendered\n`\u003ca\u003e` carries `aria-current=\"page\"` and `data-status=\"active\"`.",
+          "superclass": {
+            "name": "HTMLElement",
+            "package": "global:"
+          },
+          "members": [
+            {
+              "name": "to",
+              "type": {
+                "text": "AnyRoute | string"
+              },
+              "kind": "field"
+            },
+            {
+              "name": "params",
+              "type": {
+                "text": "Record\u003cstring, string | number | boolean\u003e | undefined"
+              },
+              "kind": "field"
+            },
+            {
+              "name": "search",
+              "type": {
+                "text": "NavigateRouteOptions\u003cAnyRoute\u003e[\"search\"]"
+              },
+              "kind": "field"
+            },
+            {
+              "name": "hash",
+              "type": {
+                "text": "string | undefined"
+              },
+              "kind": "field"
+            },
+            {
+              "name": "state",
+              "type": {
+                "text": "unknown"
+              },
+              "kind": "field"
+            },
+            {
+              "name": "replace",
+              "type": {
+                "text": "boolean"
+              },
+              "kind": "field"
+            },
+            {
+              "name": "exact",
+              "type": {
+                "text": "boolean"
+              },
+              "kind": "field"
+            }
+          ],
+          "kind": "class",
+          "tagName": "meow-link",
+          "attributes": [
+            {
+              "name": "to",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "replace"
+            },
+            {
+              "name": "exact"
+            }
+          ],
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "createLink",
+          "declaration": {
+            "name": "createLink",
+            "module": "src/link.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "meow-link",
+          "declaration": {
+            "name": "MeowLink",
+            "module": "src/link.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "MeowLink",
+          "declaration": {
+            "name": "MeowLink",
+            "module": "src/link.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/outlet-element.js",
+      "declarations": [
+        {
+          "name": "MeowOutlet",
+          "superclass": {
+            "name": "HTMLElement",
+            "package": "global:"
+          },
+          "members": [
+            {
+              "name": "remainder",
+              "type": {
+                "text": "Accessor\u003cstring\u003e"
+              },
+              "default": "NULL_REMAINDER",
+              "kind": "field"
+            },
+            {
+              "name": "selectedRoute",
+              "type": {
+                "text": "Accessor\u003cMeowRoute | null\u003e"
+              },
+              "default": "NULL_SELECTED",
+              "kind": "field"
+            }
+          ],
+          "kind": "class",
+          "tagName": "meow-outlet",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "meow-outlet",
+          "declaration": {
+            "name": "MeowOutlet",
+            "module": "src/outlet-element.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "MeowOutlet",
+          "declaration": {
+            "name": "MeowOutlet",
+            "module": "src/outlet-element.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/route-element.js",
+      "declarations": [
+        {
+          "name": "MeowRoute",
+          "superclass": {
+            "name": "HTMLElement",
+            "package": "global:"
+          },
+          "members": [
+            {
+              "name": "matched",
+              "type": {
+                "text": "boolean"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "matchedAccessor",
+              "type": {
+                "text": "Accessor\u003cboolean\u003e"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "params",
+              "type": {
+                "text": "Record\u003cstring, string\u003e | null",
+                "references": [
+                  {
+                    "name": "ParamsRecord",
+                    "module": "src/route-element.js"
+                  }
+                ]
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "paramsAccessor",
+              "type": {
+                "text": "Accessor\u003cParamsRecord | null\u003e"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "path",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "compiledPath",
+              "type": {
+                "text": "CompiledPath"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "parameters": [
+                {
+                  "name": "params",
+                  "type": {
+                    "text": "Record\u003cstring, string\u003e",
+                    "references": [
+                      {
+                        "name": "ParamsRecord",
+                        "module": "src/route-element.js"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "consumed",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "name": "activate",
+              "kind": "method"
+            },
+            {
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "name": "deactivate",
+              "kind": "method"
+            }
+          ],
+          "kind": "class",
+          "tagName": "meow-route",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "meow-route",
+          "declaration": {
+            "name": "MeowRoute",
+            "module": "src/route-element.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "MeowRoute",
+          "declaration": {
+            "name": "MeowRoute",
+            "module": "src/route-element.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/router-element.js",
+      "declarations": [
+        {
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "text": "string | null | undefined"
+              }
+            }
+          ],
+          "name": "normalizeBasepath",
+          "kind": "function"
+        },
+        {
+          "name": "MeowRouter",
+          "superclass": {
+            "name": "HTMLElement",
+            "package": "global:"
+          },
+          "members": [
+            {
+              "name": "currentURL",
+              "type": {
+                "text": "Accessor\u003cURL\u003e"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "currentState",
+              "type": {
+                "text": "Accessor\u003cunknown\u003e"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "searchParams",
+              "type": {
+                "text": "Record\u003cstring, string[]\u003e"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "history",
+              "type": {
+                "text": "HistoryState"
+              },
+              "readonly": true,
+              "kind": "field"
+            },
+            {
+              "name": "basepath",
+              "type": {
+                "text": "string"
+              },
+              "kind": "field"
+            },
+            {
+              "name": "matchURL",
+              "kind": "method"
+            },
+            {
+              "parameters": [
+                {
+                  "name": "href",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "state",
+                  "type": {
+                    "text": "unknown"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "name": "navigate",
+              "kind": "method"
+            },
+            {
+              "parameters": [
+                {
+                  "name": "href",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "state",
+                  "type": {
+                    "text": "unknown"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "name": "replace",
+              "kind": "method"
+            },
+            {
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "SearchParamValue"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "text": "SetSearchParamOptions"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "name": "setSearchParam",
+              "kind": "method"
+            }
+          ],
+          "kind": "class",
+          "tagName": "meow-router",
+          "attributes": [
+            {
+              "name": "basepath"
+            }
+          ],
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "normalizeBasepath",
+          "declaration": {
+            "name": "normalizeBasepath",
+            "module": "src/router-element.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "meow-router",
+          "declaration": {
+            "name": "MeowRouter",
+            "module": "src/router-element.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "MeowRouter",
+          "declaration": {
+            "name": "MeowRouter",
+            "module": "src/router-element.js"
+          }
+        }
+      ]
+    }
+  ]
+}

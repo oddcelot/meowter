@@ -65,6 +65,9 @@ const INITIAL_URL = new URL(
   typeof window !== "undefined" ? window.location.href : "http://localhost/",
 );
 
+/**
+ * @customElement meow-router
+ */
 export class MeowRouter extends HTMLElement {
   static observedAttributes = ["basepath"];
 
