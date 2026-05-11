@@ -13,12 +13,18 @@
     "typecheck": "pnpm -r typecheck && tsc -p scripts",
     "favicons:gen": "node scripts/generate-favicons.ts",
     "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
+    "fmt:check": "oxfmt --check",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@profullstack/favicon-generator": "^1.1.4",
     "@types/node": "^25.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
     "oxfmt": "^0.48.0"
+  },
+  "lint-staged": {
+    "*": "oxfmt --no-error-on-unmatched-pattern"
   },
   "engines": {
     "node": ">=26"
