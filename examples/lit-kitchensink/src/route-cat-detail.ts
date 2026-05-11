@@ -1,44 +1,33 @@
 import { LitElement, html, type TemplateResult } from "lit";
-import type { MeowRoute } from "meowter";
-import { SignalsController } from "./signals-controller.ts";
 
 export class RouteCatDetail extends LitElement {
-  #id = "";
+  static override properties = {
+    id: { type: String },
+  };
+
+  declare id: string;
 
   constructor() {
     super();
-    new SignalsController(this, (track) => {
-      const route = this.#route();
-      if (!route) return;
-      track(
-        () => route.paramsAccessor()?.["id"] ?? "",
-        (id) => {
-          this.#id = id;
-        },
-      );
-    });
+    this.id = "";
   }
 
   override createRenderRoot(): HTMLElement {
     return this;
   }
 
-  #route(): MeowRoute | null {
-    return this.closest<MeowRoute>("meow-route");
-  }
-
   override render(): TemplateResult {
     return html`
-      <h2>Detail: <span>${this.#id}</span></h2>
+      <h2>Detail: <span>${this.id}</span></h2>
       <p>
         This route demonstrates a dynamic parameter. The <code>:id</code>
-        segment is exposed via <code>route.params</code> /
-        <code>route.paramsAccessor()</code>.
+        segment is exposed via the route's typed
+        <code>useParams()</code> accessor.
       </p>
       <p>
-        The Lit component reads the parent <code>&lt;meow-route&gt;</code>'s
-        <code>paramsAccessor()</code> through a small reactive controller and
-        rerenders when it changes.
+        The Lit component receives <code>id</code> as a property, set by the
+        <code>render</code> function inside an effect that re-runs whenever
+        <code>params()</code> changes.
       </p>
     `;
   }

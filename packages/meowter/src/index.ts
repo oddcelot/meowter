@@ -15,6 +15,25 @@ export type {
   RouteLeaveDetail,
 } from "./events.ts";
 
+export { createRootRoute, createRoute, createRouter } from "./create-route.ts";
+export type {
+  Route,
+  RootRoute,
+  AnyRoute,
+  Router,
+  RouteOptions,
+  RouteRenderCtx,
+  RouteRenderResult,
+  RouteWithChildren,
+  CreateRouterOptions,
+  Params,
+  ExtractParamNames,
+  JoinPath,
+  AllParams,
+  FullPathOf,
+  RouterPaths,
+} from "./create-route.ts";
+
 /**
  * Open registry consumers augment with their generated route paths.
  *
