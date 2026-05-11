@@ -11,7 +11,7 @@ export { MeowRoute } from "./route-element.ts";
 export { MeowOutlet } from "./outlet-element.ts";
 export type { RouteChangeDetail, RouteMatchDetail, RouteLeaveDetail } from "./events.ts";
 
-export { createRootRoute, createRoute, createRouter } from "./create-route.ts";
+export { createRootRoute, createRoute, createRouter, computeHref } from "./create-route.ts";
 export type {
   Route,
   RootRoute,
@@ -28,7 +28,15 @@ export type {
   AllParams,
   FullPathOf,
   RouterPaths,
+  NavigateRouteOptions,
+  NavigatePathOptions,
+  ParamsOf,
+  SearchInput,
+  SearchValue,
 } from "./create-route.ts";
+
+export { createLink, MeowLink } from "./link.ts";
+export type { LinkHandle, LinkOptions, LinkPathOptions, ActiveOptions } from "./link.ts";
 
 /**
  * Open registry consumers augment with their generated route paths.

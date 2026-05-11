@@ -109,6 +109,37 @@ export interface CreateRouterOptions<Tree extends AnyRoute> {
   basepath?: string;
 }
 
+// ---------------------------------------------------------------------------
+// Navigation options
+// ---------------------------------------------------------------------------
+
+export type SearchValue = string | number | boolean | null | undefined;
+export type SearchInput = Record<string, SearchValue | readonly SearchValue[]>;
+
+export type ParamsOf<R extends AnyRoute> =
+  R extends Route<any, any, infer AllP, any> ? AllP : never;
+
+interface NavigateOptionsCommon {
+  search?: SearchInput;
+  hash?: string;
+  state?: unknown;
+  replace?: boolean;
+}
+
+/**
+ * Options for navigating to a `Route` value. When the route has `:param`
+ * segments, `params` is required (TS-enforced); otherwise it's optional.
+ */
+export type NavigateRouteOptions<R extends AnyRoute> = NavigateOptionsCommon & {
+  to: R;
+} & (keyof ParamsOf<R> extends never ? { params?: ParamsOf<R> } : { params: ParamsOf<R> });
+
+/** Options for navigating to a bare path string (no compile-time params). */
+export interface NavigatePathOptions<Tree extends AnyRoute> extends NavigateOptionsCommon {
+  to: RouterPaths<Tree>;
+  params?: Record<string, string | number>;
+}
+
 export interface Router<Tree extends AnyRoute> {
   readonly tree: Tree;
   readonly element: MeowRouter | null;
@@ -119,8 +150,25 @@ export interface Router<Tree extends AnyRoute> {
    * dispose function that tears down the rendered DOM and listeners.
    */
   mount(target: HTMLElement): () => void;
+
+  /** Navigate to a registered path string. */
   navigate(href: RouterPaths<Tree>, state?: unknown): void;
+  /** Navigate using a typed `Route` reference with params/search/state. */
+  navigate<R extends AnyRoute>(opts: NavigateRouteOptions<R>): void;
+  /** Navigate using a path string with search/state/replace. */
+  navigate(opts: NavigatePathOptions<Tree>): void;
+
+  /** Replace the current entry with a registered path string. */
   replace(href: RouterPaths<Tree>, state?: unknown): void;
+  /** Replace using a typed `Route` reference with params/search/state. */
+  replace<R extends AnyRoute>(opts: NavigateRouteOptions<R>): void;
+  /** Replace using a path string with search/state. */
+  replace(opts: NavigatePathOptions<Tree>): void;
+
+  /** Build a typed href without performing navigation — useful for `<a href>`. */
+  buildHref<R extends AnyRoute>(opts: NavigateRouteOptions<R>): string;
+  buildHref(opts: NavigatePathOptions<Tree>): string;
+
   currentURL(): URL;
 }
 
@@ -279,12 +327,29 @@ export function createRouter<Tree extends AnyRoute>(opts: CreateRouterOptions<Tr
       buildChildren(outlet, opts.routeTree);
       return dispose;
     },
-    navigate(href, state) {
-      routerEl?.navigate(href as string, state);
-    },
-    replace(href, state) {
-      routerEl?.replace(href as string, state);
-    },
+    // navigate / replace / buildHref are overloaded; cast through `any` so the
+    // implementation can accept either a string or options object uniformly.
+    navigate: ((hrefOrOpts: unknown, state?: unknown): void => {
+      if (typeof hrefOrOpts === "string") {
+        routerEl?.navigate(hrefOrOpts, state);
+        return;
+      }
+      const opts = hrefOrOpts as NavigateRouteOptions<AnyRoute>;
+      const href = computeHref(opts);
+      if (opts.replace) routerEl?.replace(href, opts.state);
+      else routerEl?.navigate(href, opts.state);
+    }) as Router<Tree>["navigate"],
+    replace: ((hrefOrOpts: unknown, state?: unknown): void => {
+      if (typeof hrefOrOpts === "string") {
+        routerEl?.replace(hrefOrOpts, state);
+        return;
+      }
+      const opts = hrefOrOpts as NavigateRouteOptions<AnyRoute>;
+      const href = computeHref(opts);
+      routerEl?.replace(href, opts.state);
+    }) as Router<Tree>["replace"],
+    buildHref: ((opts: unknown): string =>
+      computeHref(opts as NavigateRouteOptions<AnyRoute>)) as Router<Tree>["buildHref"],
     currentURL(): URL {
       if (!routerEl) return new URL(window.location.href);
       return routerEl.currentURL();
@@ -379,4 +444,54 @@ function normalizeRenderResult(result: RouteRenderResult): Node | null {
   if (result == null) return null;
   if (typeof result === "string") return document.createTextNode(result);
   return result;
+}
+
+// ---------------------------------------------------------------------------
+// Href builder — shared between navigate/replace/buildHref/Link
+// ---------------------------------------------------------------------------
+
+const PARAM_RE = /:([a-zA-Z_][a-zA-Z0-9_]*)/g;
+
+/** Build a path string from a `to` (Route or string) plus params/search/hash. */
+export function computeHref(
+  opts: NavigateRouteOptions<AnyRoute> | NavigatePathOptions<AnyRoute>,
+): string {
+  const to = opts.to;
+  const template = typeof to === "string" ? to : to.fullPath;
+  const params = (opts as { params?: Record<string, string | number | boolean> }).params ?? {};
+
+  let path = template.replace(PARAM_RE, (_match: string, name: string) => {
+    const v = params[name];
+    if (v == null) {
+      throw new Error(`meowter: missing param "${name}" for path "${template}"`);
+    }
+    return encodeURIComponent(String(v));
+  });
+
+  if (template.endsWith("*")) {
+    const splat = (params as { _splat?: string })._splat ?? "";
+    path = path.slice(0, -1) + splat.split("/").map(encodeURIComponent).join("/");
+  }
+
+  if (opts.search) {
+    const sp = new URLSearchParams();
+    for (const [k, raw] of Object.entries(opts.search)) {
+      if (raw == null) continue;
+      if (Array.isArray(raw)) {
+        for (const item of raw) {
+          if (item != null) sp.append(k, String(item));
+        }
+      } else {
+        sp.set(k, String(raw));
+      }
+    }
+    const q = sp.toString();
+    if (q) path += "?" + q;
+  }
+
+  if (opts.hash) {
+    path += "#" + opts.hash;
+  }
+
+  return path;
 }
