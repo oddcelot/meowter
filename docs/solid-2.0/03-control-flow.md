@@ -144,11 +144,11 @@ Solid 2.0 reshapes `createDynamic` into a `lazy`-style factory named `dynamic`. 
 import { dynamic } from "@solidjs/web";
 
 // Reactive swap between two components
-const Active = dynamic(() => isEditing() ? Editor : Viewer);
+const Active = dynamic(() => (isEditing() ? Editor : Viewer));
 return <Active value={value()} />;
 
 // Native tag swap
-const Tag = dynamic(() => multiline() ? "textarea" : "input");
+const Tag = dynamic(() => (multiline() ? "textarea" : "input"));
 return <Tag value={value()} />;
 ```
 
@@ -218,29 +218,39 @@ For a leaf `<Loading>`, "minimally ready" and "fully ready" are the same thing: 
 
 ##### Nesting matrix
 
-| Outer `order` | Inner `order` | Outer release condition | After outer releases, inner siblings behave as |
-|---|---|---|---|
-| `sequential` | `sequential` | Outer frontier reaches the inner slot. | Inner reveals in registration order; outer frontier waits for the inner group to finish before advancing past it. |
-| `sequential` | `together` | Outer frontier reaches the inner slot. | Inner reveals atomically once every inner child is ready. |
-| `sequential` | `natural` | Outer frontier reaches the inner slot. | Inner reveals per-slot: each leaf on resolve, each grandchild composite when fully ready. |
-| `together` | `sequential` | Every direct child of the outer `together` is minimally ready; that means the inner's frontier-0 has resolved. | Inner reveals its frontier-0 immediately with the group release, then continues its own sequential order for the tail. |
-| `together` | `together` | Every direct child of the outer is minimally ready; that means the inner `together` has all its own children ready. | Inner reveals atomically as part of the same group release. |
-| `together` | `natural` | Every direct child of the outer is minimally ready; that means at least one inner child is ready. | Already-resolved inner children flush with the group release; later inner resolutions stream independently under natural. |
-| `natural` | `sequential` | The inner composite is fully ready (i.e. every inner child has resolved). | Inner group is fully ready at release; all inner children flush together. |
-| `natural` | `together` | The inner composite is fully ready. | Same as above. |
-| `natural` | `natural` | The inner composite is fully ready. | Same as above. |
+| Outer `order` | Inner `order` | Outer release condition                                                                                             | After outer releases, inner siblings behave as                                                                            |
+| ------------- | ------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `sequential`  | `sequential`  | Outer frontier reaches the inner slot.                                                                              | Inner reveals in registration order; outer frontier waits for the inner group to finish before advancing past it.         |
+| `sequential`  | `together`    | Outer frontier reaches the inner slot.                                                                              | Inner reveals atomically once every inner child is ready.                                                                 |
+| `sequential`  | `natural`     | Outer frontier reaches the inner slot.                                                                              | Inner reveals per-slot: each leaf on resolve, each grandchild composite when fully ready.                                 |
+| `together`    | `sequential`  | Every direct child of the outer `together` is minimally ready; that means the inner's frontier-0 has resolved.      | Inner reveals its frontier-0 immediately with the group release, then continues its own sequential order for the tail.    |
+| `together`    | `together`    | Every direct child of the outer is minimally ready; that means the inner `together` has all its own children ready. | Inner reveals atomically as part of the same group release.                                                               |
+| `together`    | `natural`     | Every direct child of the outer is minimally ready; that means at least one inner child is ready.                   | Already-resolved inner children flush with the group release; later inner resolutions stream independently under natural. |
+| `natural`     | `sequential`  | The inner composite is fully ready (i.e. every inner child has resolved).                                           | Inner group is fully ready at release; all inner children flush together.                                                 |
+| `natural`     | `together`    | The inner composite is fully ready.                                                                                 | Same as above.                                                                                                            |
+| `natural`     | `natural`     | The inner composite is fully ready.                                                                                 | Same as above.                                                                                                            |
 
 `order="natural"` is primarily useful when you have a group whose children don't need to coordinate with each other. Nesting a natural group under an outer ordering lets the natural group participate as one unit in the outer order while each child reveals on its own data once the outer releases the slot.
 
 ```jsx
 <Reveal>
-  <Loading fallback={<Skeleton />}><Header /></Loading>
+  <Loading fallback={<Skeleton />}>
+    <Header />
+  </Loading>
   <Reveal order="natural">
-    <Loading fallback={<CardSkel />}><Card id={1} /></Loading>
-    <Loading fallback={<CardSkel />}><Card id={2} /></Loading>
-    <Loading fallback={<CardSkel />}><Card id={3} /></Loading>
+    <Loading fallback={<CardSkel />}>
+      <Card id={1} />
+    </Loading>
+    <Loading fallback={<CardSkel />}>
+      <Card id={2} />
+    </Loading>
+    <Loading fallback={<CardSkel />}>
+      <Card id={3} />
+    </Loading>
   </Reveal>
-  <Loading fallback={<Skeleton />}><Footer /></Loading>
+  <Loading fallback={<Skeleton />}>
+    <Footer />
+  </Loading>
 </Reveal>
 ```
 
@@ -325,23 +335,25 @@ const Active = dynamic(() => current());
 return <Active value={value()} />;
 
 // 2.0 — manual composition, if you really want a one-shot call
-createComponent(dynamic(() => current()), { value: value() });
+createComponent(
+  dynamic(() => current()),
+  { value: value() },
+);
 ```
 
 The `<Dynamic component={...}>` JSX wrapper is unchanged at the call site; most users don't need to touch anything.
 
 ## Removals
 
-| Removed | Replacement |
-|--------|-------------|
-| `Index` | `For keyed={false}` |
-| `Suspense` | `Loading` |
-| `SuspenseList` | `Reveal` |
-| `ErrorBoundary` | `Errored` |
+| Removed                        | Replacement                                       |
+| ------------------------------ | ------------------------------------------------- |
+| `Index`                        | `For keyed={false}`                               |
+| `Suspense`                     | `Loading`                                         |
+| `SuspenseList`                 | `Reveal`                                          |
+| `ErrorBoundary`                | `Errored`                                         |
 | `createDynamic(source, props)` | `dynamic(source)` factory (`<Dynamic>` unchanged) |
 
 ## Alternatives considered
 
 - Keeping both `For` and `Index`: rejected in favor of one API with explicit keying.
 - Adding a separate “range” mode to `For`: rejected in favor of a dedicated `Repeat` that makes “no diffing” obvious.
-

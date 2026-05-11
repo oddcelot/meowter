@@ -20,9 +20,7 @@ const addTagBtn = document.querySelector<HTMLButtonElement>("#search-add-tag");
 const clearBtn = document.querySelector<HTMLButtonElement>("#search-clear");
 const searchReadout = document.querySelector<HTMLPreElement>("#search-readout");
 const debugContent = document.querySelector<HTMLElement>("#debug-content");
-const navLinks = Array.from(
-  document.querySelectorAll<HTMLAnchorElement>("aside nav a[data-nav]"),
-);
+const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("aside nav a[data-nav]"));
 
 function pathOf(href: string): string {
   const u = new URL(href, window.location.origin);

@@ -24,8 +24,6 @@ await generateIcons({
 });
 
 const cleanup = ["manifest.json", "meta-tags.html", "browserconfig.xml", "favicon.png"];
-await Promise.all(
-  cleanup.map((f) => rm(resolve(outputDir, f), { force: true })),
-);
+await Promise.all(cleanup.map((f) => rm(resolve(outputDir, f), { force: true })));
 
 console.log(`✓ favicons regenerated → ${outputDir}`);

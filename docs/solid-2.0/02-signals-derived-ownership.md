@@ -86,7 +86,7 @@ const [todos, { addTodo }] = useContext(TodosContext);
 
 The default form `createContext<T>(defaultValue)` is unchanged: `useContext` falls back to `defaultValue` outside any Provider. Reserved for primitive fallbacks (theme, locale, frozen config). For any context carrying reactive state, prefer the default-less form.
 
-> If you want truly app-wide state, **don't use Context** — a module-scope signal/store *is* a global. Context is for scoping state to a subtree, which is why a Provider is mandatory in the default-less form.
+> If you want truly app-wide state, **don't use Context** — a module-scope signal/store _is_ a global. Context is for scoping state to a subtree, which is why a Provider is mandatory in the default-less form.
 
 **Migration:** drop `useX`-with-throw wrappers and call `useContext` directly. If you actively relied on `useContext(ctx)` returning `undefined` for a default-less context, either pass an explicit default to `createContext` or wrap the call in a try/catch.
 
@@ -153,10 +153,10 @@ If you used `createComputed` to “write back”:
 
 ## Removals
 
-| Removed | Replacement |
-|--------|-------------|
-| `createComputed` | `createEffect` (split), function-form `createSignal`/`createStore`, or `createMemo` |
-| `Context.Provider` | Use the context directly as the provider component (`<Context value={...}>`) |
+| Removed            | Replacement                                                                         |
+| ------------------ | ----------------------------------------------------------------------------------- |
+| `createComputed`   | `createEffect` (split), function-form `createSignal`/`createStore`, or `createMemo` |
+| `Context.Provider` | Use the context directly as the provider component (`<Context value={...}>`)        |
 
 ## Alternatives considered
 

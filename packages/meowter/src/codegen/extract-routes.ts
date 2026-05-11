@@ -19,10 +19,7 @@ const DEFAULT_BASE_PLACEHOLDER = "{{BASE}}";
  * Indexes are emitted as their parent's full path. Catch-alls (`*`) are
  * emitted verbatim. Missing `path` attributes are skipped.
  */
-export function extractRoutesFromHtml(
-  html: string,
-  options: ExtractOptions = {},
-): string[] {
+export function extractRoutesFromHtml(html: string, options: ExtractOptions = {}): string[] {
   const placeholder = options.basePlaceholder ?? DEFAULT_BASE_PLACEHOLDER;
   const root = parse(html);
   const out: string[] = [];
@@ -52,12 +49,7 @@ export function extractRoutesFromHtml(
 }
 
 function isHTMLElement(node: unknown): node is HTMLElement {
-  return (
-    typeof node === "object" &&
-    node !== null &&
-    "tagName" in node &&
-    "childNodes" in node
-  );
+  return typeof node === "object" && node !== null && "tagName" in node && "childNodes" in node;
 }
 
 function stripPlaceholder(raw: string, placeholder: string): string {

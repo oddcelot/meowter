@@ -74,8 +74,7 @@ function makeTree() {
 
 describe("createRoute / createRouter", () => {
   it("derives fullPath by joining parent and child paths", () => {
-    const { homeRoute, catsRoute, catsIndexRoute, catDetailRoute, notFoundRoute } =
-      makeTree();
+    const { homeRoute, catsRoute, catsIndexRoute, catDetailRoute, notFoundRoute } = makeTree();
     expect(homeRoute.fullPath).toBe("/");
     expect(catsRoute.fullPath).toBe("/cats");
     expect(catsIndexRoute.fullPath).toBe("/cats");

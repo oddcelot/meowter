@@ -16,12 +16,11 @@ type TrimRight<S extends string> = S extends `${infer R}/` ? TrimRight<R> : S;
 type NormalizeSlash<S extends string> = S extends "" ? "/" : S;
 
 /** Extract the names of all `:param` segments in a path string. */
-export type ExtractParamNames<P extends string> =
-  P extends `${string}:${infer Name}/${infer Rest}`
-    ? Name | ExtractParamNames<`/${Rest}`>
-    : P extends `${string}:${infer Name}`
-      ? Name
-      : never;
+export type ExtractParamNames<P extends string> = P extends `${string}:${infer Name}/${infer Rest}`
+  ? Name | ExtractParamNames<`/${Rest}`>
+  : P extends `${string}:${infer Name}`
+    ? Name
+    : never;
 
 /**
  * Map a path string to its runtime params record. A path with no `:name`
@@ -60,12 +59,7 @@ export type RouteRenderResult = Node | DocumentFragment | string | null | void;
 export interface RouteRenderCtx<Parent extends AnyRoute, P extends string> {
   params: Accessor<AllParams<Parent, P>>;
   matched: Accessor<boolean>;
-  route: Route<
-    Parent,
-    P,
-    AllParams<Parent, P>,
-    JoinPath<FullPathOf<Parent>, P>
-  >;
+  route: Route<Parent, P, AllParams<Parent, P>, JoinPath<FullPathOf<Parent>, P>>;
   router: Router<AnyRoute>;
 }
 
@@ -78,12 +72,7 @@ export interface RouteOptions<Parent extends AnyRoute, P extends string> {
   render?(ctx: RouteRenderCtx<Parent, P>): RouteRenderResult;
 }
 
-export interface Route<
-  Parent extends AnyRoute,
-  P extends string,
-  AllP,
-  FullP extends string,
-> {
+export interface Route<Parent extends AnyRoute, P extends string, AllP, FullP extends string> {
   readonly __brand: "MeowterRoute";
   readonly path: P;
   readonly fullPath: FullP;
@@ -109,14 +98,8 @@ export interface RouteWithChildren<
 
 export type AnyRoute = Route<any, any, any, any>;
 
-export type FullPathOf<R extends AnyRoute> = R extends Route<
-  AnyRoute,
-  string,
-  any,
-  infer F
->
-  ? F
-  : never;
+export type FullPathOf<R extends AnyRoute> =
+  R extends Route<AnyRoute, string, any, infer F> ? F : never;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type RootRoute = Route<AnyRoute, "/", {}, "/">;
@@ -142,21 +125,14 @@ export interface Router<Tree extends AnyRoute> {
 }
 
 /** Walk the tree's fullPath strings into a union, then expand :params to ${string}. */
-export type RouterPaths<Tree extends AnyRoute> = ResolveParams<
-  CollectFullPaths<Tree>
->;
+export type RouterPaths<Tree extends AnyRoute> = ResolveParams<CollectFullPaths<Tree>>;
 
-type CollectFullPaths<R> = R extends RouteWithChildren<
-  any,
-  any,
-  any,
-  any,
-  infer Children
->
-  ? (R extends { fullPath: infer F extends string } ? F : never) | CollectChildren<Children>
-  : R extends { fullPath: infer F extends string }
-    ? F
-    : never;
+type CollectFullPaths<R> =
+  R extends RouteWithChildren<any, any, any, any, infer Children>
+    ? (R extends { fullPath: infer F extends string } ? F : never) | CollectChildren<Children>
+    : R extends { fullPath: infer F extends string }
+      ? F
+      : never;
 
 type CollectChildren<C> = C extends readonly [infer Head, ...infer Tail]
   ? CollectFullPaths<Head> | CollectChildren<Tail>
@@ -172,17 +148,12 @@ interface RouteBindings {
 }
 
 const bindings = new WeakMap<AnyRoute, RouteBindings>();
-const EMPTY_PARAMS: Record<string, string> = Object.freeze({}) as Record<
-  string,
-  string
->;
+const EMPTY_PARAMS: Record<string, string> = Object.freeze({}) as Record<string, string>;
 const DEFAULT_PARAMS: Accessor<Record<string, string>> = () => EMPTY_PARAMS;
 const DEFAULT_MATCHED: Accessor<boolean> = () => false;
 
 function getBindings(route: AnyRoute): RouteBindings {
-  return (
-    bindings.get(route) ?? { params: DEFAULT_PARAMS, matched: DEFAULT_MATCHED }
-  );
+  return bindings.get(route) ?? { params: DEFAULT_PARAMS, matched: DEFAULT_MATCHED };
 }
 
 function trimLeadingSlash(s: string): string {
@@ -214,12 +185,7 @@ function makeRoute<Parent extends AnyRoute, P extends string>(
   parent: Parent | null,
   fullPath: string,
 ): Route<Parent, P, AllParams<Parent, P>, JoinPath<FullPathOf<Parent>, P>> {
-  type Self = Route<
-    Parent,
-    P,
-    AllParams<Parent, P>,
-    JoinPath<FullPathOf<Parent>, P>
-  >;
+  type Self = Route<Parent, P, AllParams<Parent, P>, JoinPath<FullPathOf<Parent>, P>>;
   const children: AnyRoute[] = [];
   const self: Self = {
     __brand: "MeowterRoute",
@@ -231,22 +197,14 @@ function makeRoute<Parent extends AnyRoute, P extends string>(
       return children;
     },
     useParams(): Accessor<AllParams<Parent, P>> {
-      return getBindings(self as unknown as AnyRoute).params as Accessor<
-        AllParams<Parent, P>
-      >;
+      return getBindings(self as unknown as AnyRoute).params as Accessor<AllParams<Parent, P>>;
     },
     useMatched(): Accessor<boolean> {
       return getBindings(self as unknown as AnyRoute).matched;
     },
     addChildren<C extends readonly AnyRoute[]>(
       kids: C,
-    ): RouteWithChildren<
-      Parent,
-      P,
-      AllParams<Parent, P>,
-      JoinPath<FullPathOf<Parent>, P>,
-      C
-    > {
+    ): RouteWithChildren<Parent, P, AllParams<Parent, P>, JoinPath<FullPathOf<Parent>, P>, C> {
       children.length = 0;
       for (const k of kids) children.push(k);
       return self as unknown as RouteWithChildren<
@@ -276,12 +234,7 @@ export function createRootRoute(opts?: {
 
 export function createRoute<Parent extends AnyRoute, const P extends string>(
   opts: RouteOptions<Parent, P>,
-): Route<
-  Parent,
-  P,
-  AllParams<Parent, P>,
-  JoinPath<FullPathOf<Parent>, P>
-> {
+): Route<Parent, P, AllParams<Parent, P>, JoinPath<FullPathOf<Parent>, P>> {
   const parent = opts.getParentRoute();
   const fullPath = joinFullPath(parent.fullPath, opts.path);
   return makeRoute<Parent, P>(opts, parent, fullPath);
@@ -295,9 +248,7 @@ interface MountedNode {
   cleanup: () => void;
 }
 
-export function createRouter<Tree extends AnyRoute>(
-  opts: CreateRouterOptions<Tree>,
-): Router<Tree> {
+export function createRouter<Tree extends AnyRoute>(opts: CreateRouterOptions<Tree>): Router<Tree> {
   let routerEl: MeowRouter | null = null;
   let createdRouter = false;
   let rootOutlet: HTMLElement | null = null;

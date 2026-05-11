@@ -5,14 +5,12 @@ const TEMPLATES: Record<string, () => TemplateResult> = {
     <article>
       <header><h1>Home</h1></header>
       <p>
-        This is a kitchen-sink demo of <code>meow-router</code>,
-        <code>meow-route</code>, and <code>meow-outlet</code> — composed with
-        <a href="https://lit.dev/">Lit</a>.
+        This is a kitchen-sink demo of <code>meow-router</code>, <code>meow-route</code>, and
+        <code>meow-outlet</code> — composed with <a href="https://lit.dev/">Lit</a>.
       </p>
       <p>
         Click around the sidebar to exercise the features. The
-        <strong>Live state</strong> panel updates reactively from the router's
-        signals and stores.
+        <strong>Live state</strong> panel updates reactively from the router's signals and stores.
       </p>
       <ul>
         <li>Nested routes with index + dynamic params</li>
@@ -29,8 +27,8 @@ const TEMPLATES: Record<string, () => TemplateResult> = {
       <p>Wrong house.</p>
       <p>
         Sibling-of-cats route. Note that the cats route's
-        <code>matched</code> signal flips to <code>false</code> when this one
-        is shown, and the live-state panel reflects the change reactively.
+        <code>matched</code> signal flips to <code>false</code> when this one is shown, and the
+        live-state panel reflects the change reactively.
       </p>
     </article>
   `,
@@ -38,14 +36,13 @@ const TEMPLATES: Record<string, () => TemplateResult> = {
     <article>
       <header><h1>About</h1></header>
       <p>
-        This kitchen sink exercises the full surface of <code>meowter</code>
-        from a Lit application. Source lives in <code>../../packages/meowter/src/</code>.
+        This kitchen sink exercises the full surface of <code>meowter</code> from a Lit application.
+        Source lives in <code>../../packages/meowter/src/</code>.
       </p>
       <p>
         UI layer: <a href="https://lit.dev/">Lit</a>. Reactivity layer:
-        <code>@solidjs/signals@2.0.0-beta.x</code>, bridged into Lit via a
-        small reactive controller. Styling:
-        <a href="https://picocss.com/">Pico CSS</a>. Font:
+        <code>@solidjs/signals@2.0.0-beta.x</code>, bridged into Lit via a small reactive
+        controller. Styling: <a href="https://picocss.com/">Pico CSS</a>. Font:
         <a href="https://github.com/dkaoster/lilex">Lilex Variable</a>.
       </p>
     </article>

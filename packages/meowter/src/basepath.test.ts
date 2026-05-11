@@ -182,9 +182,7 @@ describe("MeowRouter basepath", () => {
     const router = mountRouter('<a href="/cats" id="lnk">Cats</a>', 'basepath="/x/"');
     const pushSpy = spyPushState();
     const anchor = router.querySelector<HTMLAnchorElement>("#lnk")!;
-    anchor.dispatchEvent(
-      new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }),
-    );
+    anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
     expect(pushSpy).toHaveBeenCalledOnce();
     expectPushedPath(pushSpy, "/x/cats");
   });

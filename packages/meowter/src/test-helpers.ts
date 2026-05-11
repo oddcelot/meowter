@@ -16,10 +16,7 @@ function clickEvent(extra: MouseEventInit = {}): MouseEvent {
   });
 }
 
-export function mountRouter(
-  innerHTML: string = "",
-  attrs: string = "",
-): MeowRouter {
+export function mountRouter(innerHTML: string = "", attrs: string = ""): MeowRouter {
   document.body.innerHTML = `<meow-router ${attrs}>${innerHTML}</meow-router>`;
   return document.body.firstElementChild as MeowRouter;
 }
@@ -29,9 +26,7 @@ export async function tick(): Promise<void> {
   await Promise.resolve();
 }
 
-export function captureRouteEvents(
-  router: MeowRouter,
-): CustomEvent<RouteChangeDetail>[] {
+export function captureRouteEvents(router: MeowRouter): CustomEvent<RouteChangeDetail>[] {
   const events: CustomEvent<RouteChangeDetail>[] = [];
   router.addEventListener("route-change", (e) => events.push(e));
   return events;
@@ -41,15 +36,11 @@ export function spyPushState(): MockInstance<typeof window.history.pushState> {
   return vi.spyOn(window.history, "pushState");
 }
 
-export function spyReplaceState(): MockInstance<
-  typeof window.history.replaceState
-> {
+export function spyReplaceState(): MockInstance<typeof window.history.replaceState> {
   return vi.spyOn(window.history, "replaceState");
 }
 
-type HistorySpy = MockInstance<
-  (data: unknown, unused: string, url?: string | URL | null) => void
->;
+type HistorySpy = MockInstance<(data: unknown, unused: string, url?: string | URL | null) => void>;
 
 export function lastPushedURL(spy: HistorySpy): URL {
   const raw = spy.mock.calls.at(-1)?.[2];

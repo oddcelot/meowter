@@ -46,51 +46,49 @@ export class MeowOutlet extends HTMLElement {
       if (child instanceof MeowRoute) directRoutes.push(child);
     }
 
-    const candidates: Array<{ route: MeowRoute } & RouteCandidate> = directRoutes.map(
-      (route) => ({
-        route,
-        compiledPath: route.compiledPath,
-        hasNestedOutlet: route.querySelector("meow-outlet") !== null,
+    const candidates: Array<{ route: MeowRoute } & RouteCandidate> = directRoutes.map((route) => ({
+      route,
+      compiledPath: route.compiledPath,
+      hasNestedOutlet: route.querySelector("meow-outlet") !== null,
+    }));
+
+    this.#disposeRoot = runWithOwner(null, () =>
+      createRoot((dispose) => {
+        const reachable = createMemo<boolean>(() => {
+          if (!ancestorOutlet || !ancestorRoute) return true;
+          return ancestorOutlet.selectedRoute() === ancestorRoute;
+        });
+
+        const input = createMemo<string>(() => {
+          if (ancestorOutlet) return ancestorOutlet.remainder();
+          return router.matchURL().pathname;
+        });
+
+        const selection = createMemo(() => {
+          if (!reachable()) return null;
+          return selectFor(input(), candidates);
+        });
+
+        this.selectedRoute = createMemo<MeowRoute | null>(() => selection()?.route.route ?? null);
+
+        this.remainder = createMemo<string>(() => {
+          const sel = selection();
+          return sel ? computeRemainder(input(), sel.consumed) : "";
+        });
+
+        createRenderEffect<ReturnType<typeof selection>>(
+          () => selection(),
+          (sel) => {
+            for (const { route } of candidates) {
+              if (sel === null || sel.route.route !== route) route.deactivate();
+            }
+            if (sel) sel.route.route.activate(sel.params, sel.consumed);
+          },
+        );
+
+        return dispose;
       }),
     );
-
-    this.#disposeRoot = runWithOwner(null, () => createRoot((dispose) => {
-      const reachable = createMemo<boolean>(() => {
-        if (!ancestorOutlet || !ancestorRoute) return true;
-        return ancestorOutlet.selectedRoute() === ancestorRoute;
-      });
-
-      const input = createMemo<string>(() => {
-        if (ancestorOutlet) return ancestorOutlet.remainder();
-        return router.matchURL().pathname;
-      });
-
-      const selection = createMemo(() => {
-        if (!reachable()) return null;
-        return selectFor(input(), candidates);
-      });
-
-      this.selectedRoute = createMemo<MeowRoute | null>(
-        () => selection()?.route.route ?? null,
-      );
-
-      this.remainder = createMemo<string>(() => {
-        const sel = selection();
-        return sel ? computeRemainder(input(), sel.consumed) : "";
-      });
-
-      createRenderEffect<ReturnType<typeof selection>>(
-        () => selection(),
-        (sel) => {
-          for (const { route } of candidates) {
-            if (sel === null || sel.route.route !== route) route.deactivate();
-          }
-          if (sel) sel.route.route.activate(sel.params, sel.consumed);
-        },
-      );
-
-      return dispose;
-    }));
   }
 
   #findAncestorOutlet(router: MeowRouter): MeowOutlet | null {

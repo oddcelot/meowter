@@ -81,18 +81,18 @@ Instead of “splitting” (which creates extra objects and can de-opt proxies),
 const props = { a: 1, b: 2, c: 3 };
 const rest = omit(props, "a", "b");
 
-rest.c;        // 3
-"a" in rest;   // false
+rest.c; // 3
+"a" in rest; // false
 ```
 
 ### Derived stores: `createProjection` and `createStore(fn)`
 
 The relationship between these two mirrors the signal/memo split:
 
-| Signals | Stores |
-|---------|--------|
-| `createMemo(fn)` — readonly derived value | `createProjection(fn, seed)` — readonly derived store |
-| `createSignal(fn)` — writable derived value | `createStore(fn, seed)` — writable derived store |
+| Signals                                     | Stores                                                |
+| ------------------------------------------- | ----------------------------------------------------- |
+| `createMemo(fn)` — readonly derived value   | `createProjection(fn, seed)` — readonly derived store |
+| `createSignal(fn)` — writable derived value | `createStore(fn, seed)` — writable derived store      |
 
 Just as `createMemo` returns only a getter and `createSignal(fn)` returns `[getter, setter]`, `createProjection` returns only the store while `createStore(fn, seed)` returns `[store, setter]`.
 
@@ -112,34 +112,43 @@ const selected = createProjection((s) => {
 
 ```js
 // Reconcile returned list data into a projection (keyed reconciliation)
-const users = createProjection(async () => {
-  return await api.listUsers();
-}, [], { key: "id" });
+const users = createProjection(
+  async () => {
+    return await api.listUsers();
+  },
+  [],
+  { key: "id" },
+);
 ```
 
-**`createStore(fn, seed, options?)`** — a writable derived store. Same derive semantics as `createProjection`, but returns `[store, setter]` so you can also write to it imperatively. Use this when you need both reactively derived state *and* local mutations.
+**`createStore(fn, seed, options?)`** — a writable derived store. Same derive semantics as `createProjection`, but returns `[store, setter]` so you can also write to it imperatively. Use this when you need both reactively derived state _and_ local mutations.
 
 ```js
-const [cache, setCache] = createStore((draft) => {
-  draft.value = expensive(selector());
-}, { value: 0 });
+const [cache, setCache] = createStore(
+  (draft) => {
+    draft.value = expensive(selector());
+  },
+  { value: 0 },
+);
 
 // Can also write imperatively
-setCache(s => { s.override = true; });
+setCache((s) => {
+  s.override = true;
+});
 ```
 
 ### `reconcile(value, key)` (diffing into stores)
 
 `reconcile` returns a diffing function that updates a store (or a nested part of a store) from new data while preserving identity for unchanged entries. The second argument is the key used for identity matching (a string property name or a function).
 
-In 2.0 the usage changes from 1.x because setters are now draft-first: you call `reconcile` *inside* the setter callback, targeting the specific part of the draft you want to reconcile.
+In 2.0 the usage changes from 1.x because setters are now draft-first: you call `reconcile` _inside_ the setter callback, targeting the specific part of the draft you want to reconcile.
 
 ```js
 // 1.x (path-style setter)
 setStore("todos", reconcile(serverTodos));
 
 // 2.0 (draft-first setter)
-setStore(s => {
+setStore((s) => {
   reconcile(serverTodos, "id")(s.todos);
 });
 ```
@@ -171,7 +180,7 @@ createEffect(
   (snapshot) => {
     // snapshot is a plain object — safe to read, serialize, diff
     saveToLocalStorage(JSON.stringify(snapshot));
-  }
+  },
 );
 ```
 
@@ -199,12 +208,12 @@ Contrast with `snapshot(store)`, which also returns a plain object but does **no
 
 ## Removals
 
-| Removed | Replacement |
-|--------|-------------|
-| `mergeProps` | `merge` |
-| `splitProps` | `omit` |
+| Removed          | Replacement                            |
+| ---------------- | -------------------------------------- |
+| `mergeProps`     | `merge`                                |
+| `splitProps`     | `omit`                                 |
 | `createSelector` | `createProjection` / `createStore(fn)` |
-| `unwrap` | `snapshot` |
+| `unwrap`         | `snapshot`                             |
 
 ## Alternatives considered
 

@@ -1,19 +1,14 @@
 import { expectTypeOf, test } from "vitest";
 import { createRootRoute, createRoute, createRouter } from "./create-route.ts";
-import type {
-  ExtractParamNames,
-  JoinPath,
-  Params,
-  RouterPaths,
-} from "./create-route.ts";
+import type { ExtractParamNames, JoinPath, Params, RouterPaths } from "./create-route.ts";
 
 test("ExtractParamNames pulls :name segments", () => {
   expectTypeOf<ExtractParamNames<"/">>().toEqualTypeOf<never>();
   expectTypeOf<ExtractParamNames<"/about">>().toEqualTypeOf<never>();
   expectTypeOf<ExtractParamNames<"/cats/:id">>().toEqualTypeOf<"id">();
-  expectTypeOf<
-    ExtractParamNames<"/cats/:id/litters/:litterId">
-  >().toEqualTypeOf<"id" | "litterId">();
+  expectTypeOf<ExtractParamNames<"/cats/:id/litters/:litterId">>().toEqualTypeOf<
+    "id" | "litterId"
+  >();
 });
 
 test("Params maps path strings to records", () => {
@@ -95,9 +90,7 @@ test("RouterPaths collects the tree's resolved paths", () => {
   ]);
 
   type AppPaths = RouterPaths<typeof routeTree>;
-  expectTypeOf<AppPaths>().toMatchTypeOf<
-    "/" | "/cats" | `/cats/${string}` | "/*"
-  >();
+  expectTypeOf<AppPaths>().toMatchTypeOf<"/" | "/cats" | `/cats/${string}` | "/*">();
 
   const router = createRouter({ routeTree, basepath: "/" });
   router.navigate("/");

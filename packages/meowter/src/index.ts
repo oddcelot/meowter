@@ -9,11 +9,7 @@ ensureStyle();
 export { MeowRouter } from "./router-element.ts";
 export { MeowRoute } from "./route-element.ts";
 export { MeowOutlet } from "./outlet-element.ts";
-export type {
-  RouteChangeDetail,
-  RouteMatchDetail,
-  RouteLeaveDetail,
-} from "./events.ts";
+export type { RouteChangeDetail, RouteMatchDetail, RouteLeaveDetail } from "./events.ts";
 
 export { createRootRoute, createRoute, createRouter } from "./create-route.ts";
 export type {
@@ -58,12 +54,11 @@ export interface RouteRegistry {}
  * Expand `:param` segments to `${string}` so concrete URLs (e.g.
  * `/cats/whiskers`) satisfy the registered pattern (`/cats/:id`).
  */
-export type ResolveParams<P extends string> =
-  P extends `${infer Pre}:${string}/${infer Rest}`
-    ? `${Pre}${string}/${ResolveParams<Rest>}`
-    : P extends `${infer Pre}:${string}`
-      ? `${Pre}${string}`
-      : P;
+export type ResolveParams<P extends string> = P extends `${infer Pre}:${string}/${infer Rest}`
+  ? `${Pre}${string}/${ResolveParams<Rest>}`
+  : P extends `${infer Pre}:${string}`
+    ? `${Pre}${string}`
+    : P;
 
 /**
  * The union of paths declared in `RouteRegistry`, with `:param` segments
@@ -79,7 +74,6 @@ export type ResolveParams<P extends string> =
  * router.navigate(home);
  * ```
  */
-export type RegisteredPath =
-  keyof RouteRegistry extends never
-    ? string
-    : ResolveParams<Extract<keyof RouteRegistry, string>>;
+export type RegisteredPath = keyof RouteRegistry extends never
+  ? string
+  : ResolveParams<Extract<keyof RouteRegistry, string>>;

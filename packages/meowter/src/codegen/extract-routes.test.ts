@@ -24,11 +24,7 @@ describe("extractRoutesFromHtml", () => {
         </meow-outlet>
       </meow-route>
     `;
-    expect(extractRoutesFromHtml(html)).toEqual([
-      "/cats",
-      "/cats/:id",
-      "/cats/new",
-    ]);
+    expect(extractRoutesFromHtml(html)).toEqual(["/cats", "/cats/:id", "/cats/new"]);
   });
 
   it("treats an index route ('') as the parent's path", () => {
@@ -72,9 +68,7 @@ describe("extractRoutesFromHtml", () => {
     const html = `
       <meow-route path="<%base%>cats">cats</meow-route>
     `;
-    expect(
-      extractRoutesFromHtml(html, { basePlaceholder: "<%base%>" }),
-    ).toEqual(["/cats"]);
+    expect(extractRoutesFromHtml(html, { basePlaceholder: "<%base%>" })).toEqual(["/cats"]);
   });
 
   it("skips routes with no path attribute", () => {

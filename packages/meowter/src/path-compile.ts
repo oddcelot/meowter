@@ -52,10 +52,7 @@ export function compilePath(raw: string): CompiledPath {
   };
 }
 
-export function extractParams(
-  cp: CompiledPath,
-  match: RegExpExecArray,
-): Record<string, string> {
+export function extractParams(cp: CompiledPath, match: RegExpExecArray): Record<string, string> {
   const params: Record<string, string> = {};
   cp.paramNames.forEach((name, i) => {
     const v = match[i + 1];

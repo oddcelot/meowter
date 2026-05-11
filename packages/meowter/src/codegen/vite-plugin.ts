@@ -28,9 +28,7 @@ const DEFAULT_OUT_FILE = "meowter-routes.d.ts";
  * `meowter`'s `RouteRegistry`. Re-runs on relevant file changes during
  * dev; runs once at build time.
  */
-export function meowterRoutes(
-  options: MeowterRoutesPluginOptions = {},
-): Plugin {
+export function meowterRoutes(options: MeowterRoutesPluginOptions = {}): Plugin {
   const includeGlobs = Array.isArray(options.include)
     ? options.include
     : options.include
@@ -38,9 +36,7 @@ export function meowterRoutes(
       : DEFAULT_INCLUDE;
   const outFileRel = options.outFile ?? DEFAULT_OUT_FILE;
   const extractOpts: ExtractOptions = {
-    ...(options.basePlaceholder !== undefined
-      ? { basePlaceholder: options.basePlaceholder }
-      : {}),
+    ...(options.basePlaceholder !== undefined ? { basePlaceholder: options.basePlaceholder } : {}),
   };
 
   let projectRoot = process.cwd();

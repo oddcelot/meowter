@@ -120,7 +120,7 @@ describe("MeowOutlet selection", () => {
     expect(visible[0]!.getAttribute("path")).toBe("/dogs");
   });
 
-  it("falls back to path=\"*\" only when no sibling matches", async () => {
+  it('falls back to path="*" only when no sibling matches', async () => {
     setURL("/cats");
     let router = mount(`
       <meow-outlet>

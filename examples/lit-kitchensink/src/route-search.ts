@@ -72,9 +72,8 @@ export class RouteSearch extends LitElement {
         <header><h1>Search params</h1></header>
         <p>
           Type below — each keystroke writes to <code>?filter=</code> via
-          <code>router.setSearchParam(...)</code> using
-          <code>history: "replace"</code> so back/forward only steps between
-          actual page navigations.
+          <code>router.setSearchParam(...)</code> using <code>history: "replace"</code> so
+          back/forward only steps between actual page navigations.
         </p>
 
         <fieldset>

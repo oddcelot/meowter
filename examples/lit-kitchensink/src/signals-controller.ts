@@ -1,8 +1,4 @@
-import {
-  createRenderEffect,
-  createRoot,
-  runWithOwner,
-} from "@solidjs/signals";
+import { createRenderEffect, createRoot, runWithOwner } from "@solidjs/signals";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 
 export type Track = <T>(read: () => T, effect: (value: T) => void) => void;

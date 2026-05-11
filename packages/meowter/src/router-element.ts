@@ -1,9 +1,4 @@
-import {
-  createSignal,
-  createStore,
-  flush,
-  type Accessor,
-} from "@solidjs/signals";
+import { createSignal, createStore, flush, type Accessor } from "@solidjs/signals";
 import type {
   HistoryEntry,
   HistoryState,
@@ -81,10 +76,7 @@ export class MeowRouter extends HTMLElement {
   #basepath = createSignal<string>("/", { ownedWrite: true });
   #nextHistoryId = 0;
   #history = createStore<HistoryState>({ entries: [], index: -1 });
-  #searchParams = createStore<Record<string, string[]>>(
-    () => paramsFromURL(this.#url[0]()),
-    {},
-  );
+  #searchParams = createStore<Record<string, string[]>>(() => paramsFromURL(this.#url[0]()), {});
 
   get currentURL(): Accessor<URL> {
     return this.#url[0];
@@ -124,11 +116,7 @@ export class MeowRouter extends HTMLElement {
     return out;
   };
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     if (name === "basepath") {
       this.basepath = newValue ?? "/";
     }
@@ -212,8 +200,7 @@ export class MeowRouter extends HTMLElement {
 
   navigate(href: string, state?: unknown): void {
     const url = new URL(this.#prependBasepath(href), window.location.href);
-    const current =
-      window.location.pathname + window.location.search + window.location.hash;
+    const current = window.location.pathname + window.location.search + window.location.hash;
     const next = url.pathname + url.search + url.hash;
 
     if (current !== next) {
@@ -256,11 +243,7 @@ export class MeowRouter extends HTMLElement {
     this.#emit(url, state ?? null);
   }
 
-  setSearchParam(
-    key: string,
-    value: SearchParamValue,
-    options: SetSearchParamOptions = {},
-  ): void {
+  setSearchParam(key: string, value: SearchParamValue, options: SetSearchParamOptions = {}): void {
     const url = new URL(window.location.href);
     url.searchParams.delete(key);
     if (value !== null) {

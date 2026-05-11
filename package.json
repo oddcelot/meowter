@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.25.0",
   "scripts": {
     "dev": "pnpm --filter kitchensink dev",
     "build": "pnpm -r --filter meowter --filter kitchensink build",
@@ -16,17 +15,18 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
-  },
-  "engines": {
-    "node": ">=26"
-  },
   "devDependencies": {
     "@profullstack/favicon-generator": "^1.1.4",
     "@types/node": "^25.0.0",
     "oxfmt": "^0.48.0"
+  },
+  "engines": {
+    "node": ">=26"
+  },
+  "packageManager": "pnpm@10.25.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   }
 }

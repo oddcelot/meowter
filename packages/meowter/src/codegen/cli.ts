@@ -66,9 +66,7 @@ async function main(): Promise<void> {
     const html = await readFile(file, "utf8");
     for (const path of extractRoutesFromHtml(
       html,
-      opts.basePlaceholder !== undefined
-        ? { basePlaceholder: opts.basePlaceholder }
-        : {},
+      opts.basePlaceholder !== undefined ? { basePlaceholder: opts.basePlaceholder } : {},
     )) {
       allPaths.add(path);
     }
@@ -77,9 +75,7 @@ async function main(): Promise<void> {
   const dts = emitRouteRegistryDts(Array.from(allPaths));
   const out = resolve(opts.cwd, opts.outFile);
   await writeFile(out, dts, "utf8");
-  console.log(
-    `meowter-routes: wrote ${allPaths.size} route(s) to ${opts.outFile}`,
-  );
+  console.log(`meowter-routes: wrote ${allPaths.size} route(s) to ${opts.outFile}`);
 }
 
 main().catch((err: unknown) => {

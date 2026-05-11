@@ -21,7 +21,7 @@ DOM behavior in Solid 2.0 follows HTML standards by default: attributes over pro
   - **Default to attributes** But attributes such as `input.value`, `input.defaultValue`, `input.checked`, `input.defaultChecked`, `select.value`, `option.value`, `option.selected`, `option.defaultSelected`, `textarea.value`, `textarea.defaultValue`, `video.muted`, `video.defaultMuted`, `audio.muted`, `audio.defaultMuted` continue to be handled as props where that avoids confusion. Unfortunately, this leads to all form fields be special cased. For example: `<input value={dynamicCurrentValue()} defaultValue={dynamicDefaultValue()}/>` either can be dynamic or static, and in the absense of `defaultValue`, then, `value` is SSRed.
 - **Namespaces:** `attr:` and `bool:` namespaces are removed; the single standard behavior makes the model consistent.
 - **XML Namespaces:** `svg` and `math` work as expected, however when using XML partials, an `xmlns` attribute is required for the browser to create the elements with the correct namespace. Solid adds these automatically to the tags that can recognize as SVG/MathML. For example an `a` tag returned from a partial to be used in XML need `xmlns` added by the user.
- 
+
 ### Enhanced class prop
 
 - **`classList` is removed;** its behavior is merged into `class`.
@@ -84,14 +84,14 @@ function titleDirective(source) {
   // but avoid imperative DOM mutation at top level.
   let el;
 
-  createEffect(source, value => {
+  createEffect(source, (value) => {
     // Effect can run before the element is available
     if (el) el.title = value;
   });
 
   // Apply phase (unowned): DOM writes happen here.
   // No new primitives should be created in this callback.
-  return nextEl => {
+  return (nextEl) => {
     el = nextEl;
     el.title = source();
   };
@@ -112,12 +112,12 @@ Used as:
 
 ## Removals
 
-| Removed | Replacement / notes |
-|--------|----------------------|
-| `classList` | Use `class` with object or array |
-| `oncapture:` | Removed; use native `addEventListener` with `{ capture: true }` where needed |
-| `attr:` / `bool:` namespaces | Single attribute/property model above |
-| `use:` directives | Use `ref` callbacks / directive factories (`ref={directive(opts)}`); arrays compose (`ref={[a, b]}`) |
+| Removed                      | Replacement / notes                                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `classList`                  | Use `class` with object or array                                                                     |
+| `oncapture:`                 | Removed; use native `addEventListener` with `{ capture: true }` where needed                         |
+| `attr:` / `bool:` namespaces | Single attribute/property model above                                                                |
+| `use:` directives            | Use `ref` callbacks / directive factories (`ref={directive(opts)}`); arrays compose (`ref={[a, b]}`) |
 
 ## Alternatives considered
 

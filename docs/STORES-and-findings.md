@@ -33,7 +33,7 @@ A and B below are **implemented** (see "Status" notes). C and D remain future.
 
 #### A. Search params — the most interesting fit
 
-> **Status:** ✅ Implemented in `src/router-element.ts` (`searchParams` getter, `setSearchParam` method, `replace` sibling to `navigate`). Tests in `src/stores.test.ts`. The design below is preserved as the *intent*; the **shipped shape diverges in two places**:
+> **Status:** ✅ Implemented in `src/router-element.ts` (`searchParams` getter, `setSearchParam` method, `replace` sibling to `navigate`). Tests in `src/stores.test.ts`. The design below is preserved as the _intent_; the **shipped shape diverges in two places**:
 >
 > 1. **Multi-value keys** — `searchParams: Record<string, string[]>` (always arrays), not `Record<string, string>`. Honest about `URLSearchParams.getAll()` semantics; consumers do `params.foo?.[0]` for single-value access.
 > 2. **`setSearchParam` accepts `string | string[] | null`** — `null` removes the key, `string[]` writes multi-value, `string` writes single. `options.history` defaults to `"replace"` (per design); pass `"push"` for explicit history entries.
@@ -99,13 +99,13 @@ createRenderEffect(
 
 **Migration shape if we add this:**
 
-| Step                                                              | File                            |
-| ----------------------------------------------------------------- | ------------------------------- |
-| Add `#searchParams` derived store + `searchParams` getter         | `src/router-element.ts`         |
-| Add `setSearchParam(key, value, options?)` method                 | `src/router-element.ts`         |
-| Update `RouteChangeDetail` to optionally surface a snapshot       | `src/events.ts` (optional)      |
-| New tests: per-key memo only re-runs when its key changes         | `src/signals.test.ts` or new   |
-| Demo: `index.html` adds a filter input wired to `setSearchParam`  | `index.html`, `src/main.ts`     |
+| Step                                                             | File                         |
+| ---------------------------------------------------------------- | ---------------------------- |
+| Add `#searchParams` derived store + `searchParams` getter        | `src/router-element.ts`      |
+| Add `setSearchParam(key, value, options?)` method                | `src/router-element.ts`      |
+| Update `RouteChangeDetail` to optionally surface a snapshot      | `src/events.ts` (optional)   |
+| New tests: per-key memo only re-runs when its key changes        | `src/signals.test.ts` or new |
+| Demo: `index.html` adds a filter input wired to `setSearchParam` | `index.html`, `src/main.ts`  |
 
 #### B. Route history — implemented
 
@@ -145,7 +145,7 @@ If `<meow-route>` ever grows a `loader` attribute that fetches data on activatio
 const [data] = createStore(async () => {
   const id = route.params?.id;
   if (id == null) return null;
-  return await fetch(`/api/cats/${id}`).then(r => r.json());
+  return await fetch(`/api/cats/${id}`).then((r) => r.json());
 }, null);
 ```
 
@@ -162,7 +162,7 @@ We'd want this if we built **active-link styling** as a store rather than per-an
 ```ts
 const [active] = createProjection<Record<string, boolean>>(() => {
   const path = router.currentURL().pathname;
-  return Object.fromEntries(allLinks.map(href => [href, isActiveFor(path, href)]));
+  return Object.fromEntries(allLinks.map((href) => [href, isActiveFor(path, href)]));
 }, {});
 ```
 
@@ -188,7 +188,7 @@ We picked `@solidjs/signals@2.0.0-beta.10` (zero deps, 357kB unpacked) over `sol
 
 ### F2. Dev-mode `STRICT_READ_UNTRACKED` is a real warning, not noise
 
-When `route.activate()` does `const wasMatched = this.#matched[0]()` from inside the outlet's `createRenderEffect` apply phase, dev mode warns: *"Reactive value read directly in an effect callback will not update."* The warning is correct — the apply phase is **untracked** (RFC 01), so the read doesn't subscribe.
+When `route.activate()` does `const wasMatched = this.#matched[0]()` from inside the outlet's `createRenderEffect` apply phase, dev mode warns: _"Reactive value read directly in an effect callback will not update."_ The warning is correct — the apply phase is **untracked** (RFC 01), so the read doesn't subscribe.
 
 **Fix:** wrap intentional non-tracking reads in `untrack()` to silence the warning and document the intent. Status quo in `route-element.ts`:
 
@@ -211,7 +211,7 @@ In Solid 2.0, `createRoot()` is **owned by the parent reactive scope** by defaul
 
 We call `flush()` inside `MeowRoute.activate`/`deactivate` so that direct callers (tests, programmatic use) get sync read-after-write. When `route.activate` is called from inside the outlet's `createRenderEffect` (which runs during a flush triggered by `router.navigate`), the inner `flush()` no-ops. The pending writes commit when the surrounding flush continues.
 
-Side effect: an event listener that fires *during* the surrounding flush and reads `route.matched` will see the **previous** value. If a consumer needs the new state inside their `route-match` listener, they should use `event.detail.params` (which carries the new params) rather than reading `route.params` off the element. Document this in the README when we write one.
+Side effect: an event listener that fires _during_ the surrounding flush and reads `route.matched` will see the **previous** value. If a consumer needs the new state inside their `route-match` listener, they should use `event.detail.params` (which carries the new params) rather than reading `route.params` off the element. Document this in the README when we write one.
 
 ### F5. `ownedWrite: true` is the explicit "I'm writing from imperative code" flag
 
@@ -262,7 +262,7 @@ This isn't a Solid bug — it's how JS private fields work with proxies. Same go
 
 ### F10. `vi.spyOn` doesn't auto-restore between tests
 
-When tests in `src/stores.test.ts` first ran, the `replace()` test failed because a `pushState` call from a *previous* test was attributed to the spy in the current test. Vitest's default config doesn't restore spies automatically. Fix: explicit `vi.restoreAllMocks()` in `afterEach`. Already done in `router-element.test.ts`; replicate in any test file using `vi.spyOn` on shared globals like `window.history`.
+When tests in `src/stores.test.ts` first ran, the `replace()` test failed because a `pushState` call from a _previous_ test was attributed to the spy in the current test. Vitest's default config doesn't restore spies automatically. Fix: explicit `vi.restoreAllMocks()` in `afterEach`. Already done in `router-element.test.ts`; replicate in any test file using `vi.spyOn` on shared globals like `window.history`.
 
 Alternatively, set `restoreMocks: true` in `vite.config.ts`'s `test` block to make this the default — worth doing if we add more spy-using tests. Not done yet because explicit `restoreAllMocks` is more grep-able.
 

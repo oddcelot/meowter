@@ -53,9 +53,7 @@ export class DebugPanel extends LitElement {
     const { url, state, historyIndex, historyEntries } = this.#info;
     const stack =
       historyEntries
-        .map(
-          (path, i) => `  ${i}: ${path}${i === historyIndex ? " ←" : ""}`,
-        )
+        .map((path, i) => `  ${i}: ${path}${i === historyIndex ? " ←" : ""}`)
         .join("\n") || "(empty)";
     return html`
       <article id="debug">

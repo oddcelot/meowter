@@ -28,7 +28,7 @@ function Profile() {
 
 <Loading fallback={<Spinner />}>
   <Profile />
-</Loading>
+</Loading>;
 ```
 
 This pushes “loading state” to UI structure (boundaries) instead of leaking into every type.
@@ -49,7 +49,7 @@ Nested `Loading` boundaries can be used to avoid blocking large subtrees and to 
 
 #### `Loading` `on` prop: controlling when fallback re-shows
 
-By default, once a `Loading` boundary has rendered content, it keeps showing stale content during revalidation (transitions). The `on` prop lets you specify an expression that, when it changes *and* async is pending, causes the boundary to re-show its fallback instead of stale content.
+By default, once a `Loading` boundary has rendered content, it keeps showing stale content during revalidation (transitions). The `on` prop lets you specify an expression that, when it changes _and_ async is pending, causes the boundary to re-show its fallback instead of stale content.
 
 ```jsx
 // Without on: stale content shown during revalidation
@@ -152,11 +152,11 @@ In 1.x, `.loading` was a property on the resource itself. In 2.0, loading state 
 ```js
 // 1.x
 const [user] = createResource(id, fetchUser);
-<Show when={user.loading}>Refreshing...</Show>
+<Show when={user.loading}>Refreshing...</Show>;
 
 // 2.0
 const user = createMemo(() => fetchUser(id()));
-<Show when={isPending(() => user())}>Refreshing...</Show>
+<Show when={isPending(() => user())}>Refreshing...</Show>;
 ```
 
 Remember: `isPending` is **false** during the initial `Loading` fallback (there's no stale value yet). It only becomes true during revalidation.
@@ -182,7 +182,7 @@ In 1.x, `mutate` replaced the resource value wholesale. This had several problem
 ```js
 // 1.x — replaces entire array, no diffing, races possible
 const [todos, { mutate, refetch }] = createResource(fetchTodos);
-mutate(prev => [...prev, newTodo]);
+mutate((prev) => [...prev, newTodo]);
 await saveTodo(newTodo);
 refetch();
 ```
@@ -194,7 +194,9 @@ In 2.0, `createOptimisticStore` + `action` addresses all three: store-backed gra
 const [todos, setOptimisticTodos] = createOptimisticStore(fetchTodos, []);
 
 const addTodo = action(function* (todo) {
-  setOptimisticTodos(s => { s.push(todo); });
+  setOptimisticTodos((s) => {
+    s.push(todo);
+  });
   yield saveTodo(todo);
   refresh(todos);
 });
@@ -223,7 +225,7 @@ In 2.0, there's one path: async errors propagate through the reactive graph and 
 
 ```jsx
 // 2.0 — one error path, composable with SSR
-<Errored fallback={err => <p>{err.message}</p>}>
+<Errored fallback={(err) => <p>{err.message}</p>}>
   <Profile user={user()} />
 </Errored>
 ```
@@ -234,10 +236,10 @@ Removed in favor of built-in transition behavior. Pending UI should be expressed
 
 ## Removals
 
-| Removed | Replacement |
-|--------|-------------|
-| `createResource` | Async computations (`createMemo`, `createStore(fn)`, projections) + `Loading` |
-| `useTransition` / `startTransition` | Built-in transitions; use `Loading`, `isPending`, optimistic APIs |
+| Removed                             | Replacement                                                                   |
+| ----------------------------------- | ----------------------------------------------------------------------------- |
+| `createResource`                    | Async computations (`createMemo`, `createStore(fn)`, projections) + `Loading` |
+| `useTransition` / `startTransition` | Built-in transitions; use `Loading`, `isPending`, optimistic APIs             |
 
 ## Alternatives considered
 

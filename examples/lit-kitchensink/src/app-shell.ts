@@ -1,16 +1,6 @@
-import {
-  LitElement,
-  html,
-  render as litRender,
-  type TemplateResult,
-} from "lit";
+import { LitElement, html, render as litRender, type TemplateResult } from "lit";
 import { createEffect } from "@solidjs/signals";
-import {
-  createRootRoute,
-  createRoute,
-  createRouter,
-  type RouterPaths,
-} from "meowter";
+import { createRootRoute, createRoute, createRouter, type RouterPaths } from "meowter";
 import logoUrl from "../../../meowter-logo.svg?url";
 
 import "./app-nav.ts";
@@ -49,8 +39,8 @@ const catsIndexRoute = createRoute({
     renderToHost(
       catsShell(html`
         <p>
-          Pick a cat above. The list below is the index route's content; the
-          detail/new views replace it via the nested outlet.
+          Pick a cat above. The list below is the index route's content; the detail/new views
+          replace it via the nested outlet.
         </p>
         <table>
           <thead>
@@ -118,10 +108,7 @@ const catDetailRoute = createRoute({
     createEffect(
       () => params().id,
       (id) => {
-        litRender(
-          catsShell(html`<route-cat-detail .id=${id}></route-cat-detail>`),
-          host,
-        );
+        litRender(catsShell(html`<route-cat-detail .id=${id}></route-cat-detail>`), host);
       },
     );
     return host;
@@ -155,8 +142,7 @@ const aboutRoute = createRoute({
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "*",
-  render: () =>
-    renderToHost(html`<route-static name="notfound"></route-static>`),
+  render: () => renderToHost(html`<route-static name="notfound"></route-static>`),
 });
 
 const routeTree = rootRoute.addChildren([

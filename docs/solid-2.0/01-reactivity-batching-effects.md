@@ -100,11 +100,14 @@ Effects have two phases: **compute** (reactive reads only; dependencies recorded
 
 ```js
 createEffect(
-  () => count(),           // compute: only reads
-  (value, prev) => {       // effect: runs after flush
+  () => count(), // compute: only reads
+  (value, prev) => {
+    // effect: runs after flush
     console.log(value);
-    return () => { /* cleanup */ };
-  }
+    return () => {
+      /* cleanup */
+    };
+  },
 );
 ```
 
@@ -125,10 +128,7 @@ The same applies to `createMemo` — the second argument is now `options`, not a
 `createMemo` accepts a `lazy` option that defers the initial computation until the value is first read. Without `lazy`, memos compute eagerly on creation. With `lazy: true`, the memo is inert until something reads it — useful for expensive derivations that may not be needed immediately (or at all):
 
 ```js
-const expensive = createMemo(
-  () => heavyComputation(source()),
-  { lazy: true }
-);
+const expensive = createMemo(() => heavyComputation(source()), { lazy: true });
 
 // No computation has happened yet.
 // First read triggers the computation:
@@ -148,13 +148,13 @@ const data = createMemo(
   () => {
     const ws = new WebSocket(url());
     onCleanup(() => ws.close());
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       ws.onmessage = (e) => resolve(JSON.parse(e.data));
     });
   },
   {
-    unobserved: () => console.log("no subscribers, resources cleaned up")
-  }
+    unobserved: () => console.log("no subscribers, resources cleaned up"),
+  },
 );
 ```
 
@@ -170,13 +170,13 @@ The effect callback (back half) runs in an **untracked scope**. If a store proxy
 // Bad: passes store proxy through, reads in effect trigger warnings
 createEffect(
   () => store.user,
-  (user) => sendAnalytics(user.name, user.age)  // reads in untracked scope
+  (user) => sendAnalytics(user.name, user.age), // reads in untracked scope
 );
 
 // Good: reads happen in compute, effect receives plain values
 createEffect(
   () => ({ name: store.user.name, age: store.user.age }),
-  (value) => sendAnalytics(value.name, value.age)
+  (value) => sendAnalytics(value.name, value.age),
 );
 ```
 
@@ -185,11 +185,11 @@ createEffect(
 ```js
 createEffect(
   () => deep(store),
-  (snapshot) => saveToLocalStorage(JSON.stringify(snapshot))
+  (snapshot) => saveToLocalStorage(JSON.stringify(snapshot)),
 );
 ```
 
-**Untracked snapshot with `snapshot()`** — when you need the store's current value *without* subscribing to it (e.g. as context alongside other tracked signals), `snapshot()` produces a plain copy without setting up any tracking:
+**Untracked snapshot with `snapshot()`** — when you need the store's current value _without_ subscribing to it (e.g. as context alongside other tracked signals), `snapshot()` produces a plain copy without setting up any tracking:
 
 ```js
 createEffect(
@@ -197,7 +197,7 @@ createEffect(
   () => {
     const data = snapshot(store);
     upload(data);
-  }
+  },
 );
 ```
 
@@ -212,13 +212,15 @@ Use `createRenderEffect` for DOM-level work that must happen synchronously durin
 ```js
 // Synchronous render-phase binding
 createRenderEffect(
-  () => props.title,         // compute: track the value
-  (value) => {               // apply: runs synchronously when value changes
+  () => props.title, // compute: track the value
+  (value) => {
+    // apply: runs synchronously when value changes
     el.title = value;
-    return () => {           // cleanup
+    return () => {
+      // cleanup
       el.title = "";
     };
-  }
+  },
 );
 ```
 
@@ -227,18 +229,15 @@ createRenderEffect(
 `createEffect` accepts an `EffectBundle` as its second argument — an object with `effect` and `error` handlers — instead of a bare function. This lets you handle errors thrown from async computations in the reactive graph:
 
 ```js
-createEffect(
-  () => fetchData(id()),
-  {
-    effect: (data) => {
-      renderData(data);
-    },
-    error: (err, cleanup) => {
-      console.error("Fetch failed:", err);
-      cleanup();
-    }
-  }
-);
+createEffect(() => fetchData(id()), {
+  effect: (data) => {
+    renderData(data);
+  },
+  error: (err, cleanup) => {
+    console.error("Fetch failed:", err);
+    cleanup();
+  },
+});
 ```
 
 ### createTrackedEffect and onSettled
@@ -252,6 +251,7 @@ onSettled(() => {
   return () => cleanup();
 });
 ```
+
 Unlike other tracked scopes these primitives cannot create nested primitives which is a breaking change from Solid 1.x. They also return a cleanup function instead of their previous value.
 
 **`onCleanup`** remains for reactive lifecycle cleanup inside computations. But is not expected to be used inside side effects.
@@ -264,11 +264,11 @@ Unlike other tracked scopes these primitives cannot create nested primitives whi
 
 ## Removals
 
-| Removed | Replacement / notes |
-|--------|----------------------|
-| `batch` | `flush()` when you need immediate application |
+| Removed                  | Replacement / notes                                |
+| ------------------------ | -------------------------------------------------- |
+| `batch`                  | `flush()` when you need immediate application      |
 | `onError` / `catchError` | Effect `error` callback or ErrorBoundary / Errored |
-| `on` helper | No longer necessary with split effects |
+| `on` helper              | No longer necessary with split effects             |
 
 ## Alternatives considered
 

@@ -8,10 +8,9 @@
 
 :root,
 :root[data-theme="light"] {
-  --pico-font-family-sans-serif: "Lilex Variable", system-ui, -apple-system,
-    "Segoe UI", Roboto, sans-serif;
-  --pico-font-family-monospace: "Lilex Variable", ui-monospace,
-    "SF Mono", Menlo, monospace;
+  --pico-font-family-sans-serif:
+    "Lilex Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --pico-font-family-monospace: "Lilex Variable", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* Primary — cat body amber */
   --pico-primary: #c98326;

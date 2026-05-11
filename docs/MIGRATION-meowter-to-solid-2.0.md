@@ -6,11 +6,11 @@ A focused migration plan for **this** codebase. Upstream RFCs live in [`./solid-
 
 We're on **`@solidjs/signals@0.13.13`** (the standalone reactivity package that predated `solid-js@next`). Surface area in the codebase is tiny — grep for `@solidjs/signals` across `src/` returns:
 
-| File                   | Imports                                                       |
-| ---------------------- | ------------------------------------------------------------- |
-| `src/router-element.ts`| `createSignal`, `flush`, `Accessor` (type)                    |
-| `src/outlet-element.ts`| `createMemo`, `createRenderEffect`, `createRoot`, `Accessor`  |
-| `src/signals.test.ts`  | `createMemo`, `createRenderEffect`, `createRoot`              |
+| File                    | Imports                                                      |
+| ----------------------- | ------------------------------------------------------------ |
+| `src/router-element.ts` | `createSignal`, `flush`, `Accessor` (type)                   |
+| `src/outlet-element.ts` | `createMemo`, `createRenderEffect`, `createRoot`, `Accessor` |
+| `src/signals.test.ts`   | `createMemo`, `createRenderEffect`, `createRoot`             |
 
 We don't touch JSX, stores, async data, control flow, contexts, `createEffect`, `onMount`, `onCleanup`, `untrack`, `batch`, or any of the renderer packages. That makes our migration a near-trivial subset of what the upstream guide covers.
 
@@ -59,7 +59,7 @@ After bumping + the rename: `pnpm typecheck`, `pnpm test` (53 cases), and a `pnp
 
 ## Improvements worth applying after the bump
 
-These are 2.0-era idioms that we *could* adopt now that we're current. None are required for correctness.
+These are 2.0-era idioms that we _could_ adopt now that we're current. None are required for correctness.
 
 ### 1. Explicitly detach the outlet's reactive root
 
@@ -98,13 +98,14 @@ These are 2.0-era idioms that we *could* adopt now that we're current. None are 
 
 The `ownedWrite: true` option exists because we set the URL signal from **inside** `connectedCallback`/`navigate`/`popstate`, and dev mode treats those as "owned scope" in a borderline way. If we instead created the signals **outside** the class constructor (module-scope, then bind to instance) the warning wouldn't fire.
 
-Trade-off: module-scope signals turn the URL into application-global singleton state shared across all `<meow-router>` instances on a page. Today nobody mounts two routers on one page, but the explicit `ownedWrite` flag documents that we *meant* to write from instance code. **Recommendation: keep the flag**, just rename it.
+Trade-off: module-scope signals turn the URL into application-global singleton state shared across all `<meow-router>` instances on a page. Today nobody mounts two routers on one page, but the explicit `ownedWrite` flag documents that we _meant_ to write from instance code. **Recommendation: keep the flag**, just rename it.
 
 ### 3. Optional: `lazy` memos in the outlet
 
 `createMemo(fn, { lazy: true })` defers initial computation until first read and adds autodisposal when subscriber count drops to zero (RFC 01).
 
 Our outlet's `selection`/`remainder`/`selectedRoute` memos are read by:
+
 - Our own `createRenderEffect` (always observed)
 - Nested outlets reading parent `remainder()` (when nested outlets exist)
 - External code reading `outlet.selectedRoute()` (signals.test.ts uses this)

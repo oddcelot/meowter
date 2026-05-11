@@ -57,7 +57,9 @@ export class AppNav extends LitElement {
                 <a
                   href=${link.href}
                   data-nav
-                  aria-current=${ifDefined(isActive(link.href, this.#pathname) ? "page" : undefined)}
+                  aria-current=${ifDefined(
+                    isActive(link.href, this.#pathname) ? "page" : undefined,
+                  )}
                   >${link.label}</a
                 >
               </li>

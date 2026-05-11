@@ -129,9 +129,9 @@ createEffect(() => {
 // 2.0 (split effect: compute -> apply)
 createEffect(
   () => name(),
-  value => {
+  (value) => {
     el().title = value;
-  }
+  },
 );
 ```
 
@@ -139,7 +139,7 @@ The `initialValue` parameter from 1.x is gone. In 2.0, the compute function rece
 
 ```js
 // 1.x (initialValue as second arg)
-createEffect(prev => {
+createEffect((prev) => {
   console.log("changed from", prev, "to", count());
   return count();
 }, 0);
@@ -149,7 +149,7 @@ createEffect(
   (prev = 0) => count(),
   (value, prev) => {
     console.log("changed from", prev, "to", value);
-  }
+  },
 );
 ```
 
@@ -157,7 +157,7 @@ This same change applies to `createMemo` — the second argument is now `options
 
 ```js
 // 1.x
-const doubled = createMemo(prev => count() * 2, 0);
+const doubled = createMemo((prev) => count() * 2, 0);
 
 // 2.0 (no initialValue arg; prev is undefined on first run)
 const doubled = createMemo(() => count() * 2);
@@ -175,10 +175,10 @@ createEffect(() => {
 // 2.0
 createEffect(
   () => name(),
-  value => {
+  (value) => {
     const id = setInterval(() => console.log(value), 1000);
     return () => clearInterval(id);
-  }
+  },
 );
 ```
 
@@ -341,7 +341,7 @@ const [optimisticTodos, setOptimisticTodos] = createOptimisticStore({ list: [] }
 
 const addTodo = action(function* (todo) {
   // optimistic UI
-  setOptimisticTodos(s => s.list.push(todo));
+  setOptimisticTodos((s) => s.list.push(todo));
 
   // server write
   yield api.addTodo(todo);
@@ -357,7 +357,7 @@ const addTodo = action(function* (todo) {
 
 ```js
 // 2.0 preferred: produce-style draft updates
-setStore(s => {
+setStore((s) => {
   s.user.address.city = "Paris";
 });
 
@@ -412,10 +412,10 @@ const [doubled] = createSignal(() => count() * 2);
 const [items] = createStore(() => api.listItems(), []);
 
 const [cache] = createStore(
-  draft => {
+  (draft) => {
     draft.total = items().length;
   },
-  { total: 0 }
+  { total: 0 },
 );
 ```
 
@@ -555,13 +555,13 @@ function titleDirective(source) {
   // Setup phase (owned): create primitives/subscriptions here.
   // Avoid imperative DOM mutation at top level.
   let el;
-  createEffect(source, value => {
+  createEffect(source, (value) => {
     if (el) el.title = value;
   });
 
   // Apply phase (unowned): DOM writes happen here.
   // No new primitives should be created in this callback.
-  return nextEl => {
+  return (nextEl) => {
     el = nextEl;
   };
 }
@@ -687,7 +687,7 @@ createComputed(() => {
 // 2.0
 createEffect(
   () => input(),
-  val => localStorage.setItem("input", val)
+  (val) => localStorage.setItem("input", val),
 );
 ```
 
@@ -711,7 +711,7 @@ const [value, setValue] = createSignal(() => props.initial);
 createEffect(
   on(count, (value, prev) => {
     console.log("changed from", prev, "to", value);
-  })
+  }),
 );
 
 // 2.0 — compute phase declares deps, effect phase runs side effects
@@ -719,7 +719,7 @@ createEffect(
   () => count(),
   (value, prev) => {
     console.log("changed from", prev, "to", value);
-  }
+  },
 );
 ```
 
@@ -728,13 +728,13 @@ createEffect(
 createEffect(
   on([a, b], ([a, b]) => {
     console.log(a, b);
-  })
+  }),
 );
 
 // 2.0
 createEffect(
   () => [a(), b()],
-  ([a, b]) => console.log(a, b)
+  ([a, b]) => console.log(a, b),
 );
 ```
 
@@ -745,20 +745,20 @@ createEffect(
 createEffect(
   on(
     count,
-    value => {
+    (value) => {
       console.log("changed to", value);
     },
-    { defer: true }
-  )
+    { defer: true },
+  ),
 );
 
 // 2.0
 createEffect(
   count,
-  value => {
+  (value) => {
     console.log("changed to", value);
   },
-  { defer: true }
+  { defer: true },
 );
 ```
 
@@ -788,15 +788,15 @@ catchError(
   () => {
     createEffect(() => riskyAsyncWork());
   },
-  err => console.error("caught:", err)
+  (err) => console.error("caught:", err),
 );
 
 // 2.0
 createEffect(() => riskyAsyncWork(), {
-  effect: value => {
+  effect: (value) => {
     /* success path */
   },
-  error: err => console.error("caught:", err)
+  error: (err) => console.error("caught:", err),
 });
 ```
 
@@ -808,14 +808,14 @@ createEffect(() => riskyAsyncWork(), {
 // 1.x
 import { produce } from "solid-js/store";
 setStore(
-  produce(s => {
+  produce((s) => {
     s.user.name = "Alice";
     s.list.push("item");
-  })
+  }),
 );
 
 // 2.0 — draft-first is the default
-setStore(s => {
+setStore((s) => {
   s.user.name = "Alice";
   s.list.push("item");
 });
@@ -839,7 +839,7 @@ state.items.push("a");
 
 // 2.0
 const [state, setState] = createStore({ count: 0, items: [] });
-setState(s => {
+setState((s) => {
   s.count++;
   s.items.push("a");
 });
@@ -872,10 +872,10 @@ const value = createMemo(async function* () {
 // 1.x
 import { observable } from "solid-js";
 const obs$ = observable(signal);
-obs$.subscribe(value => externalLib.update(value));
+obs$.subscribe((value) => externalLib.update(value));
 
 // 2.0 — use an effect to push changes outward
-createEffect(signal, value => {
+createEffect(signal, (value) => {
   externalLib.update(value);
 });
 ```

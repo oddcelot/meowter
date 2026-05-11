@@ -46,13 +46,13 @@
               <article>
                 <header><h1>Home</h1></header>
                 <p>
-                  This is a kitchen-sink demo of <code>meow-router</code>,
-                  <code>meow-route</code>, and <code>meow-outlet</code>.
+                  This is a kitchen-sink demo of <code>meow-router</code>, <code>meow-route</code>,
+                  and <code>meow-outlet</code>.
                 </p>
                 <p>
                   Click around the sidebar to exercise the features. The
-                  <strong>Live state</strong> panel updates reactively from the
-                  router's signals and stores.
+                  <strong>Live state</strong> panel updates reactively from the router's signals and
+                  stores.
                 </p>
                 <ul>
                   <li>Nested routes with index + dynamic params</li>
@@ -82,25 +82,40 @@
                 <meow-outlet>
                   <meow-route path="">
                     <p>
-                      Pick a cat above. The list below is the index route's
-                      content; the detail/new views replace it via the nested
-                      outlet.
+                      Pick a cat above. The list below is the index route's content; the detail/new
+                      views replace it via the nested outlet.
                     </p>
                     <table>
                       <thead>
-                        <tr><th>Name</th><th>Color</th><th>Status</th></tr>
+                        <tr>
+                          <th>Name</th>
+                          <th>Color</th>
+                          <th>Status</th>
+                        </tr>
                       </thead>
                       <tbody>
-                        <tr><td>whiskers</td><td>tabby</td><td>napping</td></tr>
-                        <tr><td>mittens</td><td>black</td><td>plotting</td></tr>
-                        <tr><td>biscuit</td><td>orange</td><td>begging</td></tr>
+                        <tr>
+                          <td>whiskers</td>
+                          <td>tabby</td>
+                          <td>napping</td>
+                        </tr>
+                        <tr>
+                          <td>mittens</td>
+                          <td>black</td>
+                          <td>plotting</td>
+                        </tr>
+                        <tr>
+                          <td>biscuit</td>
+                          <td>orange</td>
+                          <td>begging</td>
+                        </tr>
                       </tbody>
                     </table>
                   </meow-route>
 
                   <meow-route path="new">
                     <h2>New cat</h2>
-                    <form onsubmit="event.preventDefault();">
+                    <form onsubmit="event.preventDefault()">
                       <label>
                         Name
                         <input type="text" name="name" placeholder="e.g. Pickles" />
@@ -122,13 +137,12 @@
                     <h2>Detail: <span data-param="id"></span></h2>
                     <p>
                       This route demonstrates a dynamic parameter. The
-                      <code>:id</code> segment is exposed via
-                      <code>route.params</code> /
+                      <code>:id</code> segment is exposed via <code>route.params</code> /
                       <code>route.paramsAccessor()</code>.
                     </p>
                     <p>
-                      The <code>data-param="id"</code> spans above are auto-
-                      filled by the demo's <code>route-match</code> listener.
+                      The <code>data-param="id"</code> spans above are auto- filled by the demo's
+                      <code>route-match</code> listener.
                     </p>
                   </meow-route>
                 </meow-outlet>
@@ -141,9 +155,8 @@
                 <p>Wrong house.</p>
                 <p>
                   Sibling-of-cats route. Note that the cats route's
-                  <code>matched</code> signal flips to <code>false</code> when
-                  this one is shown, and the live-state panel reflects the
-                  change reactively.
+                  <code>matched</code> signal flips to <code>false</code> when this one is shown,
+                  and the live-state panel reflects the change reactively.
                 </p>
               </article>
             </meow-route>
@@ -152,10 +165,9 @@
               <article>
                 <header><h1>Search params</h1></header>
                 <p>
-                  Type below — each keystroke writes to <code>?filter=</code>
-                  via <code>router.setSearchParam(...)</code> using
-                  <code>history: "replace"</code> so back/forward only steps
-                  between actual page navigations.
+                  Type below — each keystroke writes to <code>?filter=</code> via
+                  <code>router.setSearchParam(...)</code> using <code>history: "replace"</code> so
+                  back/forward only steps between actual page navigations.
                 </p>
 
                 <fieldset>
@@ -178,9 +190,7 @@
                   <button id="search-clear" class="secondary">Clear all</button>
                 </p>
 
-                <p>
-                  Current params (live):
-                </p>
+                <p>Current params (live):</p>
                 <pre id="search-readout"></pre>
               </article>
             </meow-route>
@@ -191,9 +201,15 @@
                 <p>Buttons that call router methods directly:</p>
                 <div class="grid">
                   <button data-action="navigate" data-href="/">navigate(/)</button>
-                  <button data-action="navigate" data-href="/cats/whiskers">navigate(/cats/whiskers)</button>
-                  <button data-action="replace" data-href="/cats/mittens">replace(/cats/mittens)</button>
-                  <button data-action="navigate-state">navigate(/about, &#123;from:"demo"&#125;)</button>
+                  <button data-action="navigate" data-href="/cats/whiskers">
+                    navigate(/cats/whiskers)
+                  </button>
+                  <button data-action="replace" data-href="/cats/mittens">
+                    replace(/cats/mittens)
+                  </button>
+                  <button data-action="navigate-state">
+                    navigate(/about, &#123;from:"demo"&#125;)
+                  </button>
                 </div>
                 <div class="grid">
                   <button data-action="back" class="secondary">history.back()</button>
@@ -210,11 +226,9 @@
                   <code>meowter</code>. Source lives in <code>../../src/</code>.
                 </p>
                 <p>
-                  Reactivity layer: <code>@solidjs/signals@2.0.0-beta.x</code>.
-                  Styling: <a href="https://picocss.com/">Pico CSS</a>. Font:
-                  <a href="https://github.com/dkaoster/lilex"
-                    >Lilex Variable</a
-                  >.
+                  Reactivity layer: <code>@solidjs/signals@2.0.0-beta.x</code>. Styling:
+                  <a href="https://picocss.com/">Pico CSS</a>. Font:
+                  <a href="https://github.com/dkaoster/lilex">Lilex Variable</a>.
                 </p>
               </article>
             </meow-route>

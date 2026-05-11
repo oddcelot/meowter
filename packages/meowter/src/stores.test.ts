@@ -198,12 +198,7 @@ describe("router.history (reactive store)", () => {
     router.navigate("/b");
     router.navigate("/c");
 
-    expect(router.history.entries.map((e) => pathOf(e.href))).toEqual([
-      "/",
-      "/a",
-      "/b",
-      "/c",
-    ]);
+    expect(router.history.entries.map((e) => pathOf(e.href))).toEqual(["/", "/a", "/b", "/c"]);
     expect(router.history.index).toBe(3);
   });
 
@@ -240,10 +235,7 @@ describe("router.history (reactive store)", () => {
     expect(router.history.index).toBe(0);
 
     router.navigate("/c");
-    expect(router.history.entries.map((e) => pathOf(e.href))).toEqual([
-      "/",
-      "/c",
-    ]);
+    expect(router.history.entries.map((e) => pathOf(e.href))).toEqual(["/", "/c"]);
     expect(router.history.index).toBe(1);
   });
 
@@ -262,9 +254,7 @@ describe("router.history (reactive store)", () => {
     router.navigate("/b");
 
     window.history.replaceState({ external: true }, "", "/external");
-    window.dispatchEvent(
-      new PopStateEvent("popstate", { state: { external: true } }),
-    );
+    window.dispatchEvent(new PopStateEvent("popstate", { state: { external: true } }));
 
     expect(router.history.entries).toHaveLength(1);
     expect(pathOf(router.history.entries[0]!.href)).toBe("/external");

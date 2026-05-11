@@ -28,7 +28,7 @@ createMemo(() => setCount(count() + 1));
 const doubled = createMemo(() => count() * 2);
 
 // Fix: write from an event handler
-button.onclick = () => setCount(c => c + 1);
+button.onclick = () => setCount((c) => c + 1);
 
 // Escape hatch: mark as ownedWrite (internal signals only)
 const [ref, setRef] = createSignal(null, { ownedWrite: true });
@@ -69,11 +69,14 @@ The diagnostic is an FYI, not an error: while async is pending the mount contain
 render(() => <Profile user={asyncUser()} />, root);
 
 // Explicit fallback UI: wrap in Loading
-render(() => (
-  <Loading fallback={<Spinner />}>
-    <Profile user={asyncUser()} />
-  </Loading>
-), root);
+render(
+  () => (
+    <Loading fallback={<Spinner />}>
+      <Profile user={asyncUser()} />
+    </Loading>
+  ),
+  root,
+);
 ```
 
 **Debugging tip:** if your app doesn't mount, check the console for `ASYNC_OUTSIDE_LOADING_BOUNDARY` — it names the render effect whose pending async is holding the root.
@@ -130,7 +133,7 @@ createEffect(
   () => count(),
   (value) => {
     return value; // not a function!
-  }
+  },
 );
 
 // Fix: return a function or nothing
@@ -139,7 +142,7 @@ createEffect(
   (value) => {
     console.log(value);
     return () => {}; // cleanup function
-  }
+  },
 );
 ```
 
@@ -200,11 +203,17 @@ An effect (`createEffect` or `createTrackedEffect`) was created without a parent
 
 ```js
 // Warns: no owner
-createEffect(() => count(), (v) => console.log(v));
+createEffect(
+  () => count(),
+  (v) => console.log(v),
+);
 
 // Fix: create inside a component or createRoot
 createRoot(() => {
-  createEffect(() => count(), (v) => console.log(v));
+  createEffect(
+    () => count(),
+    (v) => console.log(v),
+  );
 });
 ```
 
@@ -258,29 +267,29 @@ const events = capture.stop();
 
 Each `DiagnosticEvent` has:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `sequence` | `number` | Monotonically increasing counter |
-| `code` | `DiagnosticCode` | Machine-readable code (e.g. `"STRICT_READ_UNTRACKED"`) |
-| `kind` | `DiagnosticKind` | Category: `"strict-read"`, `"async"`, `"write"`, `"lifecycle"`, `"owner"` |
-| `severity` | `"warn" \| "error"` | Whether this throws or just logs |
-| `message` | `string` | Human-readable message |
-| `ownerId` | `string?` | ID of the reactive owner where the diagnostic occurred |
-| `ownerName` | `string?` | Debug name of the owner |
-| `nodeName` | `string?` | Debug name of the signal/node involved |
-| `data` | `object?` | Additional context |
+| Field       | Type                | Description                                                               |
+| ----------- | ------------------- | ------------------------------------------------------------------------- |
+| `sequence`  | `number`            | Monotonically increasing counter                                          |
+| `code`      | `DiagnosticCode`    | Machine-readable code (e.g. `"STRICT_READ_UNTRACKED"`)                    |
+| `kind`      | `DiagnosticKind`    | Category: `"strict-read"`, `"async"`, `"write"`, `"lifecycle"`, `"owner"` |
+| `severity`  | `"warn" \| "error"` | Whether this throws or just logs                                          |
+| `message`   | `string`            | Human-readable message                                                    |
+| `ownerId`   | `string?`           | ID of the reactive owner where the diagnostic occurred                    |
+| `ownerName` | `string?`           | Debug name of the owner                                                   |
+| `nodeName`  | `string?`           | Debug name of the signal/node involved                                    |
+| `data`      | `object?`           | Additional context                                                        |
 
 ## Diagnostic codes (quick reference)
 
-| Code | Severity | Category | Trigger |
-|------|----------|----------|---------|
-| `SIGNAL_WRITE_IN_OWNED_SCOPE` | error | write | Signal write inside component/computation |
-| `PENDING_ASYNC_UNTRACKED_READ` | error | async | Reading pending async outside tracking scope |
-| `ASYNC_OUTSIDE_LOADING_BOUNDARY` | warn | async | Async computation outside Loading boundary (non-halting; root mount is deferred) |
-| `CLEANUP_IN_FORBIDDEN_SCOPE` | error | lifecycle | `onCleanup` inside trackedEffect/onSettled |
-| `STRICT_READ_UNTRACKED` | warn | strict-read | Untracked reactive read in component/effect body |
-| `PENDING_ASYNC_FORBIDDEN_SCOPE` | warn | async | Pending async read in trackedEffect/onSettled |
-| `NO_OWNER_EFFECT` | warn | lifecycle | Effect created without reactive owner |
-| `NO_OWNER_CLEANUP` | warn | lifecycle | `onCleanup` called without owner |
-| `NO_OWNER_BOUNDARY` | warn | lifecycle | Boundary created without owner |
-| `RUN_WITH_DISPOSED_OWNER` | warn | owner | `runWithOwner` with disposed owner |
+| Code                             | Severity | Category    | Trigger                                                                          |
+| -------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------- |
+| `SIGNAL_WRITE_IN_OWNED_SCOPE`    | error    | write       | Signal write inside component/computation                                        |
+| `PENDING_ASYNC_UNTRACKED_READ`   | error    | async       | Reading pending async outside tracking scope                                     |
+| `ASYNC_OUTSIDE_LOADING_BOUNDARY` | warn     | async       | Async computation outside Loading boundary (non-halting; root mount is deferred) |
+| `CLEANUP_IN_FORBIDDEN_SCOPE`     | error    | lifecycle   | `onCleanup` inside trackedEffect/onSettled                                       |
+| `STRICT_READ_UNTRACKED`          | warn     | strict-read | Untracked reactive read in component/effect body                                 |
+| `PENDING_ASYNC_FORBIDDEN_SCOPE`  | warn     | async       | Pending async read in trackedEffect/onSettled                                    |
+| `NO_OWNER_EFFECT`                | warn     | lifecycle   | Effect created without reactive owner                                            |
+| `NO_OWNER_CLEANUP`               | warn     | lifecycle   | `onCleanup` called without owner                                                 |
+| `NO_OWNER_BOUNDARY`              | warn     | lifecycle   | Boundary created without owner                                                   |
+| `RUN_WITH_DISPOSED_OWNER`        | warn     | owner       | `runWithOwner` with disposed owner                                               |

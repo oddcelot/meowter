@@ -40,7 +40,7 @@ Core component and child APIs use `Element` from `solid-js`. It represents value
 import type { Element, Component, ParentComponent } from "solid-js";
 
 const App: Component = () => "hello";
-const Layout: ParentComponent = props => props.children;
+const Layout: ParentComponent = (props) => props.children;
 ```
 
 Use this type for renderer-neutral component APIs. Do not import `JSX` from `solid-js`; it is no longer exported.
