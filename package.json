@@ -12,7 +12,9 @@
     "preview": "pnpm --filter kitchensink preview",
     "test": "pnpm --filter meowter test",
     "typecheck": "pnpm -r typecheck && tsc -p scripts",
-    "favicons:gen": "node scripts/generate-favicons.ts"
+    "favicons:gen": "node scripts/generate-favicons.ts",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "@profullstack/favicon-generator": "^1.1.4",
-    "@types/node": "^25.0.0"
+    "@types/node": "^25.0.0",
+    "oxfmt": "^0.48.0"
   }
 }
