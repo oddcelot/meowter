@@ -155,7 +155,12 @@ export const routeTree = rootRoute.addChildren([
 /** Typed union of all registered paths — use for navigation in other modules. */
 export type AppPaths = RouterPaths<typeof routeTree>;
 
+// `import.meta.env` is Vite-only. Read it safely so scripts running in plain
+// Node (e.g. `pnpm cem:routes`) can import this module without crashing.
+const VITE_ENV = (import.meta as { env?: { BASE_URL?: string } }).env;
+const BASE_URL = VITE_ENV?.BASE_URL ?? "/";
+
 export const router = createRouter({
   routeTree,
-  basepath: import.meta.env.BASE_URL,
+  basepath: BASE_URL,
 });

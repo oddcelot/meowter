@@ -70,9 +70,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/meowter
     devDependencies:
+      '@happy-dom/global-registrator':
+        specifier: ^20.9.0
+        version: 20.9.0
       '@types/node':
         specifier: ^25.0.0
         version: 25.6.2
+      happy-dom:
+        specifier: ^20.9.0
+        version: 20.9.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -127,6 +133,10 @@ packages:
 
   '@fontsource-variable/lilex@5.2.1':
     resolution: {integrity: sha512-l+cYywL7TTDffmiaZEPG98Er8eIJhqImV9ZSwOqxE3dC+oS8G/erBvIkQO6T87J+i7+9HJwr7gSVfcq7deMuAw==}
+
+  '@happy-dom/global-registrator@20.9.0':
+    resolution: {integrity: sha512-lBW6/m5BIFl3pMuWPNN0lIOYw9LMCmPfix53ExS3FBi4E+NELEljQ3xH6aAV9IYiQRfn9YIIgzzMrD0vIcD7tw==}
+    engines: {node: '>=20.0.0'}
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -1524,6 +1534,14 @@ snapshots:
     optional: true
 
   '@fontsource-variable/lilex@5.2.1': {}
+
+  '@happy-dom/global-registrator@20.9.0':
+    dependencies:
+      '@types/node': 25.6.2
+      happy-dom: 20.9.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
