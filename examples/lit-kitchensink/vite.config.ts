@@ -3,6 +3,8 @@ import { copyFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import { meowterRoutes } from "meowter/vite-plugin";
+import { litPlugin } from "@oddsquad/vite-plugin-lit";
+import { DevTools } from "@vitejs/devtools";
 
 const PUBLIC_BASE = process.env["PUBLIC_BASE"];
 
@@ -23,5 +25,5 @@ const spaFallback404 = (): Plugin => {
 
 export default defineConfig({
   base: PUBLIC_BASE ?? "/",
-  plugins: [spaFallback404(), meowterRoutes()],
+  plugins: [spaFallback404(), meowterRoutes(), litPlugin({ timeline: true }), DevTools()],
 });
