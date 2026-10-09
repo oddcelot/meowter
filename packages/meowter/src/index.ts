@@ -12,6 +12,13 @@ export { MeowOutlet } from "./outlet-element.ts";
 export type { RouteChangeDetail, RouteMatchDetail, RouteLeaveDetail } from "./events.ts";
 
 export { createRootRoute, createRoute, createRouter, computeHref } from "./create-route.ts";
+export {
+  createFileRoute,
+  createFileRootRoute,
+  bindFileRoute,
+  bindFileRootRoute,
+} from "./file-routes.ts";
+export type { FileRoute, FileRouteConfig, FileRouteRenderCtx } from "./file-routes.ts";
 export type {
   Route,
   RootRoute,
