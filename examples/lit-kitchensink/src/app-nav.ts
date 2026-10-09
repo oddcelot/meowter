@@ -28,6 +28,7 @@ export class AppNav extends LitElement {
     return html`
       <nav aria-label="Primary">
         <ul>
+          <li><meow-link to="/cats/:id" .params=${{ id: "234" }}>test</meow-link></li>
           ${LINKS.map(
             (link) => html`
               <li>
