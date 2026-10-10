@@ -42,7 +42,7 @@ const TEMPLATES: Record<string, () => TemplateResult> = {
       <p>
         UI layer: <a href="https://lit.dev/">Lit</a>. Reactivity layer:
         <code>@solidjs/signals@2.0.0-beta.x</code>, bridged into Lit via a small reactive
-        controller. Styling: <a href="https://picocss.com/">Pico CSS</a>. Font:
+        controller. Styling: <a href="https://blades.ninja/">Blades</a>. Font:
         <a href="https://github.com/dkaoster/lilex">Lilex Variable</a>.
       </p>
     </article>

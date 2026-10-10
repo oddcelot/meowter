@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anyblades/blades": "^3.0.0",
     "@fontsource-variable/lilex": "^5.3.0",
-    "@picocss/pico": "^2.1.1",
     "@solidjs/signals": "2.0.0-rc.0",
     "meowter": "workspace:*"
   },

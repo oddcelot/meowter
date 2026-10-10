@@ -1,5 +1,5 @@
 import "@fontsource-variable/lilex";
-import "@picocss/pico/css/pico.min.css";
+import "@anyblades/blades";
 import "./styles.css";
 
 import { createRenderEffect, createRoot } from "@solidjs/signals";
