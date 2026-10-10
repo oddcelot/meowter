@@ -1,3 +1,4 @@
+import { createRenderEffect } from "@solidjs/signals";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import "./index.ts";
 import { createRootRoute, createRoute, createRouter } from "./create-route.ts";
@@ -198,5 +199,67 @@ describe("createRoute / createRouter", () => {
     dispose();
     expect(document.body.querySelector("meow-router")).toBeNull();
     expect(router.element).toBeNull();
+  });
+
+  it("disposes reactive computations created in render when the route is left", async () => {
+    setURL("/cats/a");
+    let runs = 0;
+    const rootRoute = createRootRoute();
+    const catsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/cats" });
+    const catDetailRoute = createRoute({
+      getParentRoute: () => catsRoute,
+      path: ":id",
+      render: ({ params }) => {
+        const span = document.createElement("span");
+        span.className = "cat-detail";
+        createRenderEffect(
+          () => params().id,
+          (id) => {
+            runs++;
+            span.textContent = id ?? "";
+          },
+        );
+        return span;
+      },
+    });
+    const aboutRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/about",
+      render: () => "about",
+    });
+    const routeTree = rootRoute.addChildren([catsRoute.addChildren([catDetailRoute]), aboutRoute]);
+    const router = createRouter({ routeTree, basepath: "/" });
+    router.mount(document.body);
+    await tick();
+    await tick();
+
+    router.navigate("/cats/b" as never);
+    await tick();
+    await tick();
+    expect(document.body.querySelector(".cat-detail")?.textContent).toBe("b");
+
+    router.navigate("/about" as never);
+    await tick();
+    await tick();
+    expect(document.body.querySelector(".cat-detail")).toBeNull();
+    const before = runs;
+
+    router.navigate("/about?x=1" as never);
+    await tick();
+    router.navigate("/about?x=2" as never);
+    await tick();
+    expect(runs).toBe(before);
+
+    // Re-entry: exactly one live effect, not one per visit.
+    router.navigate("/cats/c" as never);
+    await tick();
+    await tick();
+    expect(document.body.querySelector(".cat-detail")?.textContent).toBe("c");
+    const afterEnter = runs;
+    router.navigate("/cats/d" as never);
+    await tick();
+    await tick();
+    expect(document.body.querySelector(".cat-detail")?.textContent).toBe("d");
+    expect(runs - afterEnter).toBe(1);
   });
 });

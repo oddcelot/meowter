@@ -1,4 +1,4 @@
-import type { Accessor } from "@solidjs/signals";
+import { createRoot, runWithOwner, type Accessor } from "@solidjs/signals";
 import "./router-element.ts";
 import "./route-element.ts";
 import "./outlet-element.ts";
@@ -384,6 +384,7 @@ export function createRouter<Tree extends AnyRoute>(opts: CreateRouterOptions<Tr
     if (!render) return () => {};
 
     let mountedNode: Node | null = null;
+    let disposeScope: (() => void) | null = null;
 
     const ctx: RouteRenderCtx<AnyRoute, string> = {
       params: route.useParams() as Accessor<AllParams<AnyRoute, string>>,
@@ -393,8 +394,14 @@ export function createRouter<Tree extends AnyRoute>(opts: CreateRouterOptions<Tr
     };
 
     const doMount = (): void => {
-      if (mountedNode) return;
-      const result = render(ctx);
+      if (mountedNode || disposeScope) return;
+      // Own the render call so effects/memos created inside are disposed on leave.
+      const result = runWithOwner(null, () =>
+        createRoot((dispose) => {
+          disposeScope = dispose;
+          return render(ctx);
+        }),
+      );
       const node = normalizeRenderResult(result);
       if (!node) return;
       const nestedOutlet = routeEl.querySelector(":scope > meow-outlet");
@@ -404,6 +411,8 @@ export function createRouter<Tree extends AnyRoute>(opts: CreateRouterOptions<Tr
     };
 
     const doUnmount = (): void => {
+      disposeScope?.();
+      disposeScope = null;
       if (mountedNode && mountedNode.parentNode === routeEl) {
         routeEl.removeChild(mountedNode);
       }
