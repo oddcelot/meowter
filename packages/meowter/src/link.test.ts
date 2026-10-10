@@ -227,3 +227,96 @@ describe("<meow-link> custom element", () => {
     expect(anchor.hasAttribute("aria-current")).toBe(false);
   });
 });
+
+describe("links under a basepath", () => {
+  function buildBasepathRouter() {
+    const rootRoute = createRootRoute();
+    const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: "" });
+    const catsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/cats" });
+    const routeTree = rootRoute.addChildren([homeRoute, catsRoute]);
+    const router = createRouter({ routeTree, basepath: "/x/" });
+    router.mount(document.body);
+    return { router, catsRoute };
+  }
+
+  function appendLink(attrs: Record<string, string>): HTMLAnchorElement {
+    const link = document.createElement("meow-link") as MeowLink;
+    for (const [k, v] of Object.entries(attrs)) link.setAttribute(k, v);
+    document.body.querySelector("meow-router")!.appendChild(link);
+    return link.querySelector("a")!;
+  }
+
+  const click = (el: Element) =>
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+
+  beforeEach(() => setURL("/x/"));
+
+  it("createLink href includes the basepath", async () => {
+    const { router, catsRoute } = buildBasepathRouter();
+    await tick();
+    expect(createLink(router, { to: catsRoute }).href).toBe("/x/cats");
+  });
+
+  it("createLink isActive tracks the basepath-stripped URL", async () => {
+    const { router, catsRoute } = buildBasepathRouter();
+    await tick();
+    const link = createLink(router, { to: catsRoute });
+    expect(link.isActive()).toBe(false);
+
+    router.navigate("/cats");
+    await tick();
+    expect(window.location.pathname).toBe("/x/cats");
+    expect(link.isActive()).toBe(true);
+
+    router.navigate("/");
+    await tick();
+    expect(link.isActive()).toBe(false);
+  });
+
+  it("<meow-link> renders a prefixed href", async () => {
+    buildBasepathRouter();
+    await tick();
+    const anchor = appendLink({ to: "/cats" });
+    expect(anchor.getAttribute("href")).toBe("/x/cats");
+  });
+
+  it("<meow-link> toggles aria-current under a basepath", async () => {
+    const { router } = buildBasepathRouter();
+    await tick();
+    const anchor = appendLink({ to: "/cats" });
+    expect(anchor.hasAttribute("aria-current")).toBe(false);
+
+    router.navigate("/cats");
+    await tick();
+    expect(anchor.getAttribute("aria-current")).toBe("page");
+
+    router.navigate("/");
+    await tick();
+    expect(anchor.hasAttribute("aria-current")).toBe(false);
+  });
+
+  it("<meow-link exact to='/'> is active at the basepath root", async () => {
+    buildBasepathRouter();
+    await tick();
+    const anchor = appendLink({ to: "/", exact: "" });
+    expect(anchor.getAttribute("aria-current")).toBe("page");
+  });
+
+  it("clicking a <meow-link> does not double-prefix the basepath", async () => {
+    buildBasepathRouter();
+    await tick();
+    const anchor = appendLink({ to: "/cats" });
+    click(anchor);
+    await tick();
+    expect(window.location.pathname).toBe("/x/cats");
+  });
+
+  it("clicking a replace <meow-link> does not double-prefix the basepath", async () => {
+    buildBasepathRouter();
+    await tick();
+    const anchor = appendLink({ to: "/cats", replace: "" });
+    click(anchor);
+    await tick();
+    expect(window.location.pathname).toBe("/x/cats");
+  });
+});

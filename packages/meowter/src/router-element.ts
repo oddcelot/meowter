@@ -125,6 +125,28 @@ export class MeowRouter extends HTMLElement {
     }
   }
 
+  /**
+   * Prefix a same-origin href with the router's basepath (idempotent).
+   * Returns `pathname + search + hash`. Cross-origin, `#…`, and `?…` hrefs
+   * are returned unchanged.
+   */
+  withBasepath(href: string): string {
+    const bp = this.#basepath[0]();
+    if (bp === "/" || href.startsWith("#") || href.startsWith("?")) return href;
+    let url: URL;
+    try {
+      url = new URL(href, window.location.href);
+    } catch {
+      return href;
+    }
+    if (url.origin !== window.location.origin) return href;
+    const noTrail = bp.slice(0, -1);
+    if (!(url.pathname === noTrail || url.pathname.startsWith(bp))) {
+      url.pathname = bp + url.pathname.replace(/^\//, "");
+    }
+    return url.pathname + url.search + url.hash;
+  }
+
   #prependBasepath(href: string): string {
     const bp = this.#basepath[0]();
     if (bp === "/") return href;

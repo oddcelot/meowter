@@ -14,7 +14,7 @@ plus one strategic design plan.
 
 | Plan | Bead       | Title                                                       | Priority | Effort | Depends on            | Status |
 | ---- | ---------- | ----------------------------------------------------------- | -------- | ------ | --------------------- | ------ |
-| 001  | meow-7nu.1 | Basepath-aware `createLink` / `<meow-link>` (href + active) | P1       | S      | —                     | TODO   |
+| 001  | meow-7nu.1 | Basepath-aware `createLink` / `<meow-link>` (href + active) | P1       | S      | —                     | DONE   |
 | 002  | meow-7nu.2 | Tolerate malformed percent-encoding in route params         | P1       | S      | —                     | TODO   |
 | 003  | meow-7nu.3 | Publishable package (all entries built) + CI on main/PRs    | P1       | M      | —                     | TODO   |
 | 004  | meow-7nu.4 | Own and dispose each route's `render()` reactive scope      | P2       | S      | —                     | TODO   |

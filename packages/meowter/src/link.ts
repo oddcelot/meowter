@@ -63,8 +63,8 @@ export function createLink<Tree extends AnyRoute>(
 // Implementation signature widened to `any` for opts so both overloads assign.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createLink(router: Router<AnyRoute>, opts: any): LinkHandle {
-  const href = computeHref(opts as NavigateRouteOptions<AnyRoute>);
-  const targetPath = pathnameOf(href);
+  const rawHref = computeHref(opts as NavigateRouteOptions<AnyRoute>);
+  const targetPath = pathnameOf(rawHref);
   const exact = opts.activeOptions?.exact ?? false;
 
   const onClick = (event: MouseEvent): void => {
@@ -76,13 +76,21 @@ export function createLink(router: Router<AnyRoute>, opts: any): LinkHandle {
   };
 
   const isActive = createMemo<boolean>(() => {
-    const current = router.currentURL().pathname;
+    const current = router.element
+      ? router.element.matchURL().pathname
+      : router.currentURL().pathname;
     if (exact) return current === targetPath;
     if (targetPath === "/") return current === "/";
     return current === targetPath || current.startsWith(targetPath + "/");
   });
 
-  return { href, onClick, isActive };
+  return {
+    get href() {
+      return router.element ? router.element.withBasepath(rawHref) : rawHref;
+    },
+    onClick,
+    isActive,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -117,6 +125,7 @@ export class MeowLink extends HTMLElement {
   #state: unknown;
   #replace = false;
   #exact = false;
+  #targetPath: string | null = null;
 
   get to(): AnyRoute | string {
     return this.#to;
@@ -238,20 +247,24 @@ export class MeowLink extends HTMLElement {
     const anchor = this.#anchor;
     if (!anchor) return;
     if (!this.#to) {
+      this.#targetPath = null;
       anchor.removeAttribute("href");
       return;
     }
     try {
-      const href = computeHref({
+      const raw = computeHref({
         to: this.#to,
         params: this.#params,
         search: this.#search,
         hash: this.#hash,
       } as NavigateRouteOptions<AnyRoute>);
-      anchor.setAttribute("href", href);
+      this.#targetPath = pathnameOf(raw);
+      const router = this.#router ?? this.closest<MeowRouter>("meow-router");
+      anchor.setAttribute("href", router ? router.withBasepath(raw) : raw);
       this.#refreshActive();
     } catch {
       // missing params — strip href until set
+      this.#targetPath = null;
       anchor.removeAttribute("href");
     }
   }
@@ -260,16 +273,15 @@ export class MeowLink extends HTMLElement {
     const anchor = this.#anchor;
     if (!anchor) return;
     const router = this.#router ?? this.closest<MeowRouter>("meow-router");
-    const href = anchor.getAttribute("href");
-    if (!router || !href) {
+    const targetPath = this.#targetPath;
+    if (!router || targetPath === null) {
       anchor.removeAttribute("aria-current");
       anchor.removeAttribute("data-status");
       return;
     }
     // Active state is refreshed via route-change events; explicitly untrack
     // the URL read so we don't pollute any enclosing reactive scope.
-    const current = untrack(() => router.currentURL().pathname);
-    const targetPath = pathnameOf(href);
+    const current = untrack(() => router.matchURL().pathname);
     const active = this.#exact
       ? current === targetPath
       : targetPath === "/"
