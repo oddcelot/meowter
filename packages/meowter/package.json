@@ -53,6 +53,7 @@
   },
   "scripts": {
     "build": "vite build",
+    "check:pack": "node scripts/check-pack.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",

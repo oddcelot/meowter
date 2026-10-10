@@ -14,12 +14,19 @@ export default defineConfig({
   build: {
     target: "es2022",
     lib: {
-      entry: resolve(import.meta.dirname, "src/index.ts"),
+      entry: {
+        index: resolve(import.meta.dirname, "src/index.ts"),
+        codegen: resolve(import.meta.dirname, "src/codegen/index.ts"),
+        "vite-plugin": resolve(import.meta.dirname, "src/codegen/vite-plugin.ts"),
+        cli: resolve(import.meta.dirname, "src/codegen/cli.ts"),
+      },
       formats: ["es"],
-      fileName: "meowter",
     },
     rollupOptions: {
-      external: ["@solidjs/signals"],
+      output: {
+        entryFileNames: (chunk) => (chunk.name === "index" ? "meowter.js" : "[name].js"),
+      },
+      external: [/^node:/, "@solidjs/signals", "vite", "tinyglobby", "node-html-parser"],
     },
   },
   test: {
