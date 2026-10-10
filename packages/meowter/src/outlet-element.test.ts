@@ -67,6 +67,19 @@ describe("MeowOutlet selection", () => {
     expect(detail!.params).toEqual({ id: "whiskers" });
   });
 
+  it("matches with the raw param when percent-encoding is malformed", async () => {
+    setURL("/cats/%E0");
+    const router = mount(`
+      <meow-outlet>
+        <meow-route path="/cats/:id">detail</meow-route>
+      </meow-outlet>
+    `);
+    await flush();
+    const route = getRoute(router, "/cats/:id");
+    expect(route.matched).toBe(true);
+    expect(route.params).toEqual({ id: "%E0" });
+  });
+
   it("supports nested outlets with index, param, and parent visibility", async () => {
     const html = `
       <meow-outlet>

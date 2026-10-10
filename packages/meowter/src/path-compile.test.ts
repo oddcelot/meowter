@@ -53,4 +53,22 @@ describe("extractParams", () => {
     const m = cp.exact.exec("/q/hello%20world")!;
     expect(extractParams(cp, m)).toEqual({ term: "hello world" });
   });
+
+  it("returns the raw value for malformed percent-encoding (lone high byte)", () => {
+    const cp = compilePath("/cats/:id");
+    const m = cp.exact.exec("/cats/%E0")!;
+    expect(extractParams(cp, m)).toEqual({ id: "%E0" });
+  });
+
+  it("returns the raw value for a trailing lone percent sign", () => {
+    const cp = compilePath("/cats/:id");
+    const m = cp.exact.exec("/cats/100%")!;
+    expect(extractParams(cp, m)).toEqual({ id: "100%" });
+  });
+
+  it("still decodes well-formed percent-encoding", () => {
+    const cp = compilePath("/cats/:id");
+    const m = cp.exact.exec("/cats/a%20b")!;
+    expect(extractParams(cp, m)).toEqual({ id: "a b" });
+  });
 });

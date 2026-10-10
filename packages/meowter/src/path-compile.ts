@@ -52,11 +52,19 @@ export function compilePath(raw: string): CompiledPath {
   };
 }
 
+function safeDecode(v: string): string {
+  try {
+    return decodeURIComponent(v);
+  } catch {
+    return v;
+  }
+}
+
 export function extractParams(cp: CompiledPath, match: RegExpExecArray): Record<string, string> {
   const params: Record<string, string> = {};
   cp.paramNames.forEach((name, i) => {
     const v = match[i + 1];
-    if (v !== undefined) params[name] = decodeURIComponent(v);
+    if (v !== undefined) params[name] = safeDecode(v);
   });
   return params;
 }
